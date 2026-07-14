@@ -173,16 +173,27 @@ class FinanceQueries:
             ).fetchall()
         }
 
-        result = [
-            (
-                date,
-                cash_balances.get(date, 0.0),
-                stocks.get(date, 0.0),
-                goods.get(date, 0.0),
-                interest.get(date, 0.0),
+        last_stock = 0.0
+        last_goods = 0.0
+        last_interest = 0.0
+        result = []
+        for date in dates:
+            if date in stocks:
+                last_stock = stocks[date]
+            if date in goods:
+                last_goods = goods[date]
+            if date in interest:
+                last_interest = interest[date]
+
+            result.append(
+                (
+                    date,
+                    cash_balances.get(date, 0.0),
+                    last_stock,
+                    last_goods,
+                    last_interest,
+                )
             )
-            for date in dates
-        ]
 
         return result
 

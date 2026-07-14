@@ -101,6 +101,28 @@ class TestFinanceQueries(FinanceDatabaseTestCase):
 
         queries.conn.close()
 
+    def test_all_pools_timeline_fills_missing_snapshots(self):
+        queries = FinanceQueries(str(self.db_path))
+        timeline = queries.get_all_pools_timeline(start_date='2026-07-01', end_date='2026-07-03')
+
+        self.assertEqual(len(timeline), 3)
+        self.assertEqual(timeline[0][0], datetime.date(2026, 7, 1))
+        self.assertAlmostEqual(float(timeline[0][2]), 1000.00, places=2)
+        self.assertAlmostEqual(float(timeline[0][3]), 0.00, places=2)
+        self.assertAlmostEqual(float(timeline[0][4]), 0.00, places=2)
+
+        self.assertEqual(timeline[1][0], datetime.date(2026, 7, 2))
+        self.assertAlmostEqual(float(timeline[1][2]), 1000.00, places=2)
+        self.assertAlmostEqual(float(timeline[1][3]), 1400.00, places=2)
+        self.assertAlmostEqual(float(timeline[1][4]), 0.00, places=2)
+
+        self.assertEqual(timeline[2][0], datetime.date(2026, 7, 3))
+        self.assertAlmostEqual(float(timeline[2][2]), 1000.00, places=2)
+        self.assertAlmostEqual(float(timeline[2][3]), 600.00, places=2)
+        self.assertAlmostEqual(float(timeline[2][4]), 2000.00, places=2)
+
+        queries.conn.close()
+
 
 class TestStockQueryHelpers(FinanceDatabaseTestCase):
     def test_stock_snapshot_prefill_uses_previous_current_price(self):
