@@ -1,0 +1,6 @@
+**/__pycache__/
+*.duckdb
+*.wal
+*.pid
+*~$*
+dashboard/settings.json
