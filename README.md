@@ -2,6 +2,8 @@
 
 Finance mosaix is a DuckDB-based personal finance application for importing Excel transaction sheets, tracking cash flow, monitoring assets, and visualizing results with a Streamlit dashboard.
 
+> Disclaimer: this project was mainly realized with CoPilot assistance, using the Raptor mini model for content generation and implementation guidance.
+
 ## What it includes
 
 - `src/`: core finance logic, database schema, import and query helpers

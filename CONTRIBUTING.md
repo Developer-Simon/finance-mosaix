@@ -33,6 +33,13 @@ If you add new functionality, include tests that cover the new behavior.
 - Prefer descriptive names for functions and variables.
 - Document non-obvious behavior in comments or docstrings.
 
+## AI transparency
+
+- This project has been developed with the assistance of CoPilot.
+- The primary model used during project realization is Raptor mini.
+- When contributing, state whether CoPilot assistance was used for code, documentation, tests, or other deliverables.
+- Referencing the specific CoPilot model(s) used is mandatory for all pull requests.
+
 ## Notes
 
 - This repository uses `master` as the mainline branch.
