@@ -41,7 +41,8 @@ render_import_view = import_module("dashboard.import").render_import_view
 from dashboard.data_creator import render_data_creator_view
 from dashboard.data_editor import render_data_editor_view
 from dashboard.data_organizer import render_data_organizer_view
-from dashboard.settings import CHART_OPTIONS, render_settings_view, load_settings, save_settings
+from dashboard.onboarding import render_onboarding_view
+from dashboard.settings import CHART_OPTIONS, SAMPLE_DATABASE_PATH, render_settings_view, load_settings, save_settings
 
 CHART_POOL_REQUIREMENTS = {
     "Timeline": {"Cash", "Stocks", "Goods", "Interest"},
@@ -71,17 +72,42 @@ st.set_page_config(
     }
 )
 
-db_path = str(ROOT_DIR / "finance_sample.duckdb")
+settings = load_settings()
+base_db_path = settings.get("database", {}).get("database_path", "finance.duckdb")
+demo_mode = settings.get("database", {}).get("demo_mode", False)
+db_path = str((ROOT_DIR / (SAMPLE_DATABASE_PATH if demo_mode else base_db_path)).resolve())
+db_exists = Path(db_path).exists()
 
-@st.cache_resource(show_spinner=False)
+if "onboarding_completed" not in st.session_state:
+    st.session_state["onboarding_completed"] = db_exists and not demo_mode
+else:
+    if db_exists and not demo_mode:
+        st.session_state["onboarding_completed"] = True
+
+
+def _on_release_cached_queries(resource):
+    try:
+        if hasattr(resource, "conn"):
+            resource.conn.close()
+    except Exception:
+        pass
+    try:
+        st.session_state["onboarding_completed"] = False
+    except Exception:
+        pass
+
+@st.cache_resource(show_spinner=False, on_release=_on_release_cached_queries)
 def get_cached_queries(db_path: str):
     """Initialize the database once per Streamlit server session and return the query layer."""
     init_database(db_path)
     return FinanceQueries(db_path)
 
+if not st.session_state["onboarding_completed"]:
+    render_onboarding_view(settings, ROOT_DIR)
+    st.stop()
+
 queries = get_cached_queries(db_path)
-settings = load_settings()
-application_mode = settings.get("dashboard", {}).get("application_mode", "Standard")
+application_mode = settings.get("general", {}).get("application_mode", "Standard")
 legacy_pyplots_enabled = settings.get("charts", {}).get("use_legacy_pyplots", False)
 is_simple_mode = application_mode == "Simple"
 is_expert_mode = application_mode == "Expert"
@@ -153,13 +179,13 @@ def _parse_transaction_preview_key(key):
 
 
 def get_dashboard_notification_reasons(page_title: str):
-    notification_mode = settings.get("dashboard", {}).get("notification_mode", "Home only")
+    notification_mode = settings.get("general", {}).get("notification_mode", "Home only")
     if notification_mode == "Hide":
         return []
     if notification_mode == "Home only" and page_title != "Home":
         return []
 
-    ignored_notifications = set(settings.get("dashboard", {}).get("ignored_notifications", []))
+    ignored_notifications = set(settings.get("general", {}).get("ignored_notifications", []))
     notifications = []
 
     if queries.needs_calculated_account_balance_snapshots():
@@ -210,10 +236,10 @@ def render_dashboard_notification_bar(page_title: str):
             with col2:
                 if st.button("Ignore", key=f"ignore_notification_{notification_id}"):
                     current_settings = load_settings()
-                    ignored = current_settings.setdefault("dashboard", {}).get("ignored_notifications", [])
+                    ignored = current_settings.setdefault("general", {}).get("ignored_notifications", [])
                     if notification_id not in ignored:
                         ignored.append(notification_id)
-                        current_settings["dashboard"]["ignored_notifications"] = ignored
+                        current_settings["general"]["ignored_notifications"] = ignored
                         save_settings(current_settings)
                     st.rerun()
 
@@ -293,10 +319,11 @@ def _render_charts_page():
     default_chart = settings.get("charts", {}).get("default_chart", "Timeline")
 
     pool_options = ["Cash", "Stocks", "Goods", "Interest"]
+    default_pools = settings.get("general", {}).get("default_pools", pool_options)
     selected_pools = st.sidebar.multiselect(
         "Pools",
         pool_options,
-        default=pool_options,
+        default=default_pools,
         help="Select one or more pools to filter the available charts.",
     )
     if not selected_pools:

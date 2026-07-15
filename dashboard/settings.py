@@ -11,7 +11,8 @@ except ImportError:
     from db_migrate import get_db_version, CURRENT_DB_VERSION
 
 SETTINGS_FILE_NAME = "settings.json"
-PROJECT_VERSION = "0.1"
+PROJECT_VERSION = "0.2"
+SAMPLE_DATABASE_PATH = "finance_sample.duckdb"
 
 DEFAULT_SETTINGS = {
     "home": {
@@ -24,10 +25,15 @@ DEFAULT_SETTINGS = {
         "show_underlying_data": False,
         "use_legacy_pyplots": False,
     },
-    "dashboard": {
+    "general": {
         "application_mode": "Standard",
         "notification_mode": "Home only",
         "ignored_notifications": [],
+        "default_pools": ["Cash", "Stocks", "Goods", "Interest"],
+    },
+    "database": {
+        "database_path": "finance.duckdb",
+        "demo_mode": False,
     },
 }
 
@@ -96,14 +102,54 @@ def _normalize_settings(raw: dict) -> dict:
         if "use_legacy_pyplots" in raw:
             normalized["charts"]["use_legacy_pyplots"] = raw["use_legacy_pyplots"]
 
-    if "dashboard" in raw and isinstance(raw["dashboard"], dict):
-        normalized["dashboard"].update(raw["dashboard"])
+    if "general" in raw and isinstance(raw["general"], dict):
+        normalized["general"].update(raw["general"])
     else:
         if "application_mode" in raw:
-            normalized["dashboard"]["application_mode"] = raw["application_mode"]
+            normalized["general"]["application_mode"] = raw["application_mode"]
+        if "default_pools" in raw:
+            normalized["general"]["default_pools"] = raw["default_pools"]
+        if "notification_mode" in raw:
+            normalized["general"]["notification_mode"] = raw["notification_mode"]
+        if "ignored_notifications" in raw:
+            normalized["general"]["ignored_notifications"] = raw["ignored_notifications"]
 
-    if normalized["dashboard"]["application_mode"] == "Export":
-        normalized["dashboard"]["application_mode"] = "Expert"
+    if "database" in raw and isinstance(raw["database"], dict):
+        normalized["database"].update(raw["database"])
+    else:
+        if "database_path" in raw:
+            normalized["database"]["database_path"] = raw["database_path"]
+        if "demo_mode" in raw:
+            normalized["database"]["demo_mode"] = raw["demo_mode"]
+
+    if "dashboard" in raw and isinstance(raw["dashboard"], dict):
+        normalized["general"]["application_mode"] = raw["dashboard"].get(
+            "application_mode",
+            normalized["general"]["application_mode"],
+        )
+        normalized["general"]["notification_mode"] = raw["dashboard"].get(
+            "notification_mode",
+            normalized["general"]["notification_mode"],
+        )
+        normalized["general"]["ignored_notifications"] = raw["dashboard"].get(
+            "ignored_notifications",
+            normalized["general"]["ignored_notifications"],
+        )
+        normalized["general"]["default_pools"] = raw["dashboard"].get(
+            "default_pools",
+            normalized["general"]["default_pools"],
+        )
+        normalized["database"]["database_path"] = raw["dashboard"].get(
+            "database_path",
+            normalized["database"]["database_path"],
+        )
+        normalized["database"]["demo_mode"] = raw["dashboard"].get(
+            "demo_mode",
+            normalized["database"]["demo_mode"],
+        )
+
+    if normalized["general"]["application_mode"] == "Export":
+        normalized["general"]["application_mode"] = "Expert"
 
     return normalized
 
@@ -144,8 +190,36 @@ def render_settings_view(db_path: str, queries, expert_mode: bool = False):
         "The selected values are stored in a JSON file and preserved across app restarts."
     )
 
-    with st.form("dashboard_settings_form"):
-        st.subheader("Home Page Settings")
+    saved_database_path = settings["database"].get("database_path", DEFAULT_SETTINGS["database"]["database_path"])
+    saved_demo_mode = settings["database"].get("demo_mode", DEFAULT_SETTINGS["database"]["demo_mode"])
+
+    if "settings_demo_mode" not in st.session_state:
+        st.session_state["settings_demo_mode"] = saved_demo_mode
+    if "settings_demo_mode_prev" not in st.session_state:
+        st.session_state["settings_demo_mode_prev"] = saved_demo_mode
+    if "settings_database_path" not in st.session_state:
+        st.session_state["settings_database_path"] = saved_database_path
+    if "settings_database_path_before_demo" not in st.session_state:
+        st.session_state["settings_database_path_before_demo"] = saved_database_path
+
+    if st.session_state["settings_demo_mode"] and not st.session_state["settings_demo_mode_prev"]:
+        st.session_state["settings_database_path_before_demo"] = st.session_state["settings_database_path"]
+    elif not st.session_state["settings_demo_mode"] and st.session_state["settings_demo_mode_prev"]:
+        st.session_state["settings_database_path"] = st.session_state["settings_database_path_before_demo"]
+
+    st.session_state["settings_demo_mode_prev"] = st.session_state["settings_demo_mode"]
+    database_path = st.session_state["settings_database_path"]
+
+    st.session_state.setdefault("settings_home_expanded", True)
+    st.session_state.setdefault("settings_charts_expanded", True)
+    st.session_state.setdefault("settings_general_expanded", True)
+    st.session_state.setdefault("settings_database_expanded", True)
+
+    with st.expander(
+        "Home Page Settings",
+        expanded=st.session_state["settings_home_expanded"],
+        key="settings_home_expander",
+    ):
         home_show_chart_subheaders = st.checkbox(
             "Show chart subheaders on Home screen",
             value=settings["home"].get("show_chart_subheaders", DEFAULT_SETTINGS["home"]["show_chart_subheaders"]),
@@ -156,7 +230,11 @@ def render_settings_view(db_path: str, queries, expert_mode: bool = False):
             help="If left empty, the Home page title will be hidden.",
         )
 
-        st.subheader("Charts Page Settings")
+    with st.expander(
+        "Charts Page Settings",
+        expanded=st.session_state["settings_charts_expanded"],
+        key="settings_charts_expander",
+    ):
         selected_chart = st.selectbox(
             "Default chart for the Charts page",
             CHART_OPTIONS,
@@ -181,14 +259,18 @@ def render_settings_view(db_path: str, queries, expert_mode: bool = False):
             help="Show the legacy Pyplot visualization page in the dashboard navigation.",
         )
 
-        st.subheader("General settings")
+    with st.expander(
+        "General settings",
+        expanded=st.session_state["settings_general_expanded"],
+        key="settings_general_expander",
+    ):
         selected_app_mode = st.selectbox(
             "Application mode",
             APPLICATION_MODE_OPTIONS,
             index=APPLICATION_MODE_OPTIONS.index(
-                settings["dashboard"].get("application_mode", DEFAULT_SETTINGS["dashboard"]["application_mode"])
+                settings["general"].get("application_mode", DEFAULT_SETTINGS["general"]["application_mode"])
             )
-            if settings["dashboard"].get("application_mode") in APPLICATION_MODE_OPTIONS
+            if settings["general"].get("application_mode") in APPLICATION_MODE_OPTIONS
             else 0,
             help="Choose the dashboard mode. Simple mode reduces navigation and switches the editor into a view-only mode.",
         )
@@ -197,30 +279,88 @@ def render_settings_view(db_path: str, queries, expert_mode: bool = False):
             "Balance notification visibility",
             ["Home only", "Every page", "Hide"],
             index=["Home only", "Every page", "Hide"].index(
-                settings["dashboard"].get("notification_mode", DEFAULT_SETTINGS["dashboard"]["notification_mode"])
-            ) if settings["dashboard"].get("notification_mode") in ["Home only", "Every page", "Hide"] else 0,
+                settings["general"].get("notification_mode", DEFAULT_SETTINGS["general"]["notification_mode"])
+            ) if settings["general"].get("notification_mode") in ["Home only", "Every page", "Hide"] else 0,
             help="Choose where the calculated balance notification appears in the dashboard.",
         )
 
-        if st.form_submit_button("Save settings"):
-            settings["home"] = {
-                "show_chart_subheaders": home_show_chart_subheaders,
-                "page_title": home_page_title,
-            }
-            settings["charts"] = {
-                "default_chart": selected_chart,
-                "default_filter_mode": selected_filter,
-                "show_underlying_data": show_data_default,
-                "use_legacy_pyplots": enable_legacy_pyplots,
-            }
-            settings["dashboard"] = {
-                "application_mode": selected_app_mode,
-                "notification_mode": notification_mode,
-                "ignored_notifications": settings["dashboard"].get("ignored_notifications", []),
-            }
-            save_settings(settings)
-            st.success("Dashboard settings saved.")
-            st.rerun()
+        ignored_notifications = settings["general"].get("ignored_notifications", [])
+        ignored_notification_selection = st.multiselect(
+            "Ignored notifications",
+            ignored_notifications,
+            default=ignored_notifications,
+            help="Select ignored notifications to keep. Clear all selections to remove every ignored notification.",
+        )
+
+    with st.expander(
+        "Database settings",
+        expanded=st.session_state["settings_database_expanded"],
+        key="settings_database_expander",
+    ):
+        start_in_demo_mode = st.checkbox(
+            "Start in demo mode with sample data",
+            value=st.session_state["settings_demo_mode"],
+            key="settings_demo_mode",
+            help="When enabled, the dashboard will use the sample database at the selected path.",
+        )
+
+        if start_in_demo_mode and not st.session_state.get("settings_demo_mode_prev", False):
+            st.session_state["settings_database_path_before_demo"] = st.session_state["settings_database_path"]
+        if not start_in_demo_mode and st.session_state.get("settings_demo_mode_prev", False):
+            st.session_state["settings_database_path"] = st.session_state.get(
+                "settings_database_path_before_demo",
+                saved_database_path,
+            )
+
+        if start_in_demo_mode:
+            st.text_input(
+                "Database path",
+                value=SAMPLE_DATABASE_PATH,
+                key="settings_database_path_demo",
+                disabled=True,
+                help="Demo mode always uses the static sample database path.",
+            )
+        else:
+            database_path = st.text_input(
+                "Database path",
+                value=st.session_state["settings_database_path"],
+                key="settings_database_path",
+                help="Local DuckDB file path for the active database. Relative paths are resolved from the project root.",
+            )
+
+        st.session_state["settings_demo_mode_prev"] = start_in_demo_mode
+
+        default_pools = st.multiselect(
+            "Default pools",
+            ["Cash", "Stocks", "Goods", "Interest"],
+            default=settings["general"].get("default_pools", DEFAULT_SETTINGS["general"]["default_pools"]),
+            help="Pools selected here will be enabled by default in the Charts page.",
+        )
+
+    if st.button("Save settings", key="save_dashboard_settings"):
+        settings["home"] = {
+            "show_chart_subheaders": home_show_chart_subheaders,
+            "page_title": home_page_title,
+        }
+        settings["charts"] = {
+            "default_chart": selected_chart,
+            "default_filter_mode": selected_filter,
+            "show_underlying_data": show_data_default,
+            "use_legacy_pyplots": enable_legacy_pyplots,
+        }
+        settings["general"] = {
+            "application_mode": selected_app_mode,
+            "notification_mode": notification_mode,
+            "default_pools": default_pools or DEFAULT_SETTINGS["general"]["default_pools"],
+            "ignored_notifications": ignored_notification_selection,
+        }
+        settings["database"] = {
+            "demo_mode": start_in_demo_mode,
+            "database_path": DEFAULT_SETTINGS["database"]["database_path"] if start_in_demo_mode else database_path,
+        }
+        save_settings(settings)
+        # st.rerun()
+        st.success("Dashboard settings saved.")
 
     st.markdown("---")
     st.subheader("Project and database information")
@@ -234,23 +374,6 @@ def render_settings_view(db_path: str, queries, expert_mode: bool = False):
             "**Last saved:**",
             datetime.fromtimestamp(get_settings_file_path().stat().st_mtime).strftime("%Y-%m-%d %H:%M:%S"),
         )
-
-    st.markdown("---")
-    st.subheader("Ignored notifications")
-    ignored_notifications = settings["dashboard"].get("ignored_notifications", [])
-    if ignored_notifications:
-        st.write(
-            "The following notification codes are currently ignored:",
-            ", ".join(ignored_notifications),
-        )
-    else:
-        st.write("No ignored notifications are currently ignored.")
-
-    if st.button("Erase all ignored notifications", key="erase_ignored_notifications"):
-        settings["dashboard"]["ignored_notifications"] = []
-        save_settings(settings)
-        st.success("All ignored notifications have been cleared.")
-        st.rerun()
 
     if expert_mode:
         st.markdown("---")
