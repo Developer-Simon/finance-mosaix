@@ -359,7 +359,7 @@ def render_settings_view(db_path: str, queries, expert_mode: bool = False):
             "database_path": DEFAULT_SETTINGS["database"]["database_path"] if start_in_demo_mode else database_path,
         }
         save_settings(settings)
-        # st.rerun()
+        st.rerun()
         st.success("Dashboard settings saved.")
 
     st.markdown("---")
