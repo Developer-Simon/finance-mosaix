@@ -1,6 +1,7 @@
 ---
 layout: page
 title: CLI Reference
+tags: [cli, reference, terminal]
 ---
 
 # CLI Reference

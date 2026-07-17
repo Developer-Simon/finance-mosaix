@@ -1,18 +1,35 @@
+# Python cache files
 **/__pycache__/
-*.duckdb
-*.wal
-*.pid
-*~$*
-.dashboard.pid
-dashboard/settings.json
 *.py[cod]
 .pytest_cache/
 .mypy_cache/
 .coverage
-.DS_Store
-Thumbs.db
+
+# Database and runtime state
+*.duckdb
+*.wal
+*.pid
+.dashboard.pid
+*~$*
+
+dashboard/settings.json
+
+# IDE / editor settings
 .vscode/
+
+# Build and packaging artifacts
 build/
 dist/
 *.egg-info/
 pip-wheel-metadata/
+
+# Documentation site build output
+docs/_site/
+docs/.jekyll-cache/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Lock files
+*.lock

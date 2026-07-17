@@ -1,0 +1,56 @@
+<!--
+  Override of the Chirpy theme's trending-tags panel.
+
+  Upstream Chirpy builds this list from `site.tags`, which Jekyll only
+  populates from documents in the `posts` collection. This project only
+  ships documentation pages (no blog posts), so instead we aggregate the
+  `tags` front matter already defined on each documentation page.
+-->
+
+{% assign MAX = 10 %}
+
+{% assign doc_pages = site.pages | where_exp: "p", "p.tags and p.tags.size > 0" %}
+
+{% assign all_tags = "" | split: "" %}
+{% for doc in doc_pages %}
+  {% for tag in doc.tags %}
+    {% assign all_tags = all_tags | push: tag %}
+  {% endfor %}
+{% endfor %}
+
+{% assign unique_tags = all_tags | uniq %}
+
+{% assign size_list = "" | split: "" %}
+{% assign tag_list = "" | split: "" %}
+{% for tag in unique_tags %}
+  {% assign count = all_tags | where_exp: "t", "t == tag" | size %}
+  {% assign tag_list = tag_list | push: tag %}
+  {% assign size_list = size_list | push: count %}
+{% endfor %}
+
+{% assign size_list = size_list | sort | reverse %}
+
+{% assign trending_tags = "" | split: "" %}
+{% for size in size_list limit: MAX %}
+  {% for tag in unique_tags %}
+    {% assign count = all_tags | where_exp: "t", "t == tag" | size %}
+    {% if count == size %}
+      {% unless trending_tags contains tag %}
+        {% assign trending_tags = trending_tags | push: tag %}
+        {% break %}
+      {% endunless %}
+    {% endif %}
+  {% endfor %}
+{% endfor %}
+
+{% if trending_tags.size > 0 %}
+  <section>
+    <h2 class="panel-heading">{{- site.data.locales[include.lang].panel.trending_tags -}}</h2>
+    <div class="d-flex flex-wrap mt-3 mb-1 me-3">
+      {% for tag_name in trending_tags %}
+        {% assign url = tag_name | slugify | url_encode | prepend: '/tags/' | append: '/' %}
+        <a class="post-tag btn btn-outline-primary" href="{{ url | relative_url }}">{{ tag_name }}</a>
+      {% endfor %}
+    </div>
+  </section>
+{% endif %}

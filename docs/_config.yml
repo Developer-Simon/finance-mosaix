@@ -2,12 +2,48 @@ title: Finance Mosaix
 description: DuckDB-backed personal finance tracker documentation for CLI tools, dashboard workflows, and data import.
 url: "https://Developer-Simon.github.io"
 baseurl: "/finance-mosaix"
-remote_theme: pages-themes/architect
+
+github:
+  username: Developer-Simon
+
+social:
+  name: Finance Mosaix
+  email: ""
+  fediverse_handle: ""
+  links:
+    - https://github.com/Developer-Simon
+
+theme: jekyll-theme-chirpy
+tagline: "DuckDB-backed personal finance tracker documentation"
+favicon: "/img/favicon.ico"
+avatar: "/img/logo.svg"
+tabs:
+  - title: "Installation"
+    url: "/installation/"
+    icon: "fas fa-download"
+  - title: "CLI Reference"
+    url: "/cli/"
+    icon: "fas fa-terminal"
+  - title: "Dashboard"
+    url: "/dashboard/"
+    icon: "fas fa-chart-line"
+  - title: "Architecture"
+    url: "/architecture/"
+    icon: "fas fa-sitemap"
+  - title: "Data Flow"
+    url: "/data-flow/"
+    icon: "fas fa-stream"
 plugins:
   - jekyll-feed
   - jekyll-seo-tag
   - jekyll-sitemap
-  - jekyll-remote-theme
+  - jekyll-archives
+  - jekyll-paginate
+  - jekyll-redirect-from
+  - jekyll-include-cache
+  - jekyll-last-modified-at
+# boolean type, the global switch for the TOC (Contents lookup) panel in Chirpy.
+toc: true
 markdown: kramdown
 kramdown:
   input: GFM
@@ -38,17 +74,20 @@ defaults:
     values:
       layout: "page"
       author: "Finance Mosaix"
+      toc: true
+      panel_includes:
+        - toc
       show_sidebar: true
       sidebar:
         - title: "Docs"
           items:
             - title: "Installation"
-              url: "/installation.html"
+              url: "/installation/"
             - title: "Architecture"
-              url: "/architecture.html"
+              url: "/architecture/"
             - title: "CLI Reference"
-              url: "/cli.html"
+              url: "/cli/"
             - title: "Dashboard"
-              url: "/dashboard.html"
+              url: "/dashboard/"
             - title: "Data Flow"
-              url: "/data-flow.html"
+              url: "/data-flow/"
