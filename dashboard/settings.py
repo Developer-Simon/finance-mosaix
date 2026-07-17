@@ -1,5 +1,6 @@
 import copy
 import json
+import tomllib
 from datetime import datetime
 from pathlib import Path
 
@@ -11,8 +12,21 @@ except ImportError:
     from db_migrate import get_db_version, CURRENT_DB_VERSION
 
 SETTINGS_FILE_NAME = "settings.json"
-PROJECT_VERSION = "0.2"
 SAMPLE_DATABASE_PATH = "finance_sample.duckdb"
+
+
+def get_project_version() -> str:
+    config_path = Path(__file__).resolve().parents[1] / "pyproject.toml"
+    if not config_path.exists():
+        return "0.0.0"
+
+    with config_path.open("rb") as handle:
+        config = tomllib.load(handle)
+
+    return str(config.get("project", {}).get("version", "0.0.0"))
+
+
+PROJECT_VERSION = get_project_version()
 
 DEFAULT_SETTINGS = {
     "home": {

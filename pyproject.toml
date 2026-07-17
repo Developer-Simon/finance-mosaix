@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "finance-mosaix"
+version = "0.2.0"
+description = "Finance mosaix is a DuckDB-backed personal finance tracker with Excel import, CLI utilities, and a Streamlit dashboard."
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "Developer-Simon" }]
+requires-python = ">=3.11"
+keywords = ["finance", "duckdb", "streamlit", "dashboard", "personal finance", "budget", "reports"]
+
+dependencies = [
+  "pandas>=2.0,<3.0",
+  "openpyxl>=3.1,<4.0",
+  "duckdb>=1.0,<2.0",
+  "streamlit>=1.20,<2.0",
+  "altair>=5.0,<6.0",
+  "matplotlib>=3.7,<4.0",
+  "seaborn>=0.12,<1.0",
+  "numpy>=1.25,<2.0",
+]
+
+optional-dependencies = { test = ["pytest>=7.0,<9.0"] }
+
+[project.scripts]
+finance-mosaix = "src.finance_cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*", "dashboard*"]
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-q"
+testpaths = ["test"]
+python_files = ["test_*.py"]
+pythonpath = ["src"]
+markers = [
+  "integration: marks tests as integration / slower tests that exercise the full importer",
+]
