@@ -6,7 +6,7 @@ Finance mosaix supports both a command-line interface and a dashboard.
 
 Finance mosaix is the public brand. The internal package name is `FinanceMosaix`, and the project lives in the `finance-mosaix/` directory.
 
-From the project root, use the CLI in `src/finance_cli.py`.
+From the project root, use the installed CLI entry point or the local module in `src/finance_cli.py`.
 
 ### Initialize the database
 

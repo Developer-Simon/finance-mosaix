@@ -12,7 +12,8 @@ From the `finance-mosaix/` directory:
 
 ```bash
 .\.venv\Scripts\activate
-pip install -r requirements.txt
+python -m pip install --upgrade pip
+python -m pip install .
 ```
 
 This will create `finance.duckdb` in the `finance-mosaix/` directory unless you pass a custom `--db` path.
