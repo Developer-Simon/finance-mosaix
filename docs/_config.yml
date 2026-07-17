@@ -1,0 +1,54 @@
+title: Finance Mosaix
+description: DuckDB-backed personal finance tracker documentation for CLI tools, dashboard workflows, and data import.
+url: "https://Developer-Simon.github.io"
+baseurl: "/finance-mosaix"
+remote_theme: pages-themes/architect
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+  - jekyll-sitemap
+  - jekyll-remote-theme
+markdown: kramdown
+kramdown:
+  input: GFM
+  hard_wrap: false
+  auto_ids: true
+  toc_levels: 1..3
+  syntax_highlighter: rouge
+permalink: pretty
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor
+  - finance.duckdb
+  - finance_test.duckdb
+  - finance_sample.duckdb
+header_pages:
+  - index.md
+  - installation.md
+  - architecture.md
+  - cli.md
+  - dashboard.md
+  - data-flow.md
+defaults:
+  - scope:
+      path: ""
+      type: "pages"
+    values:
+      layout: "page"
+      author: "Finance Mosaix"
+      show_sidebar: true
+      sidebar:
+        - title: "Docs"
+          items:
+            - title: "Installation"
+              url: "/installation.html"
+            - title: "Architecture"
+              url: "/architecture.html"
+            - title: "CLI Reference"
+              url: "/cli.html"
+            - title: "Dashboard"
+              url: "/dashboard.html"
+            - title: "Data Flow"
+              url: "/data-flow.html"

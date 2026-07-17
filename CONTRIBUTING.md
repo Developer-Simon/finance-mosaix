@@ -19,6 +19,8 @@ Thank you for considering a contribution to Finance mosaix. Your work helps impr
 
 ## Testing
 
+Use Python 3.11 or newer (matches `pyproject.toml`).
+
 Run tests from the project root:
 
 ```bash
