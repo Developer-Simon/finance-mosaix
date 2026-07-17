@@ -16,3 +16,6 @@ build/
 dist/
 *.egg-info/
 pip-wheel-metadata/
+
+docs/_site/
+docs/.jekyll-cache/

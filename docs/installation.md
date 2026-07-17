@@ -1,6 +1,7 @@
 ---
 layout: page
 title: Installation
+tags: [installation, setup, getting-started]
 ---
 
 # Installation

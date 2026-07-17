@@ -1,6 +1,8 @@
 ---
 layout: page
 title: Architecture
+mermaid: true
+tags: [architecture, design, duckdb]
 ---
 
 # Architecture
@@ -12,6 +14,27 @@ Finance mosaix is structured around a shared DuckDB backend that is used by:
 - shared query and import helpers in `src/`
 
 The project root is `finance-mosaix/`.
+
+## Architecture Diagram
+
+```mermaid
+graph TD
+    CLI["CLI<br/>src/finance_cli.py"]
+    Dashboard["Streamlit Dashboard<br/>dashboard/"]
+    Importer["Importer<br/>import_transactions.py"]
+    QFinance["Query Layer<br/>query_finance.py + pool queries"]
+    Schema["Schema & Migration<br/>db_schema.py / db_migrate.py"]
+    DB[("DuckDB file<br/>finance.duckdb")]
+
+    CLI --> Importer
+    CLI --> QFinance
+    Dashboard --> Importer
+    Dashboard --> QFinance
+
+    Importer --> Schema
+    QFinance --> Schema
+    Schema --> DB
+```
 
 ## Project Layout
 

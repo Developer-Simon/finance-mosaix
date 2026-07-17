@@ -1,0 +1,24 @@
+---
+layout: default
+panel_includes:
+  - toc
+---
+
+{% include lang.html %}
+
+<article class="px-1">
+  {% if page.layout == 'page' or page.collection == 'tabs' %}
+    {% assign tab_key = page.title | downcase %}
+    {% assign title = site.data.locales[lang].tabs[tab_key] | default: page.title %}
+    {% unless content contains '<h1' %}
+      <h1 class="dynamic-title" data-toc-skip>
+        {{ title }}
+      </h1>
+    {% endunless %}
+    <div class="content">
+      {{ content }}
+    </div>
+  {% else %}
+    {{ content }}
+  {% endif %}
+</article>

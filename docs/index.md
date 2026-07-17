@@ -2,6 +2,7 @@
 layout: page
 title: Finance mosaix Documentation
 description: Get started with Finance mosaix, the DuckDB-backed personal finance tracker with CLI tools, dashboard features, and import workflows.
+tags: [overview, finance, duckdb]
 ---
 
 # Finance mosaix Documentation

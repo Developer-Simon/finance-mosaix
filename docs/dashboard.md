@@ -1,6 +1,7 @@
 ---
 layout: page
 title: Dashboard
+tags: [dashboard, streamlit, charts]
 ---
 
 # Dashboard

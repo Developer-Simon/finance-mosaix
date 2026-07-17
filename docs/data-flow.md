@@ -1,6 +1,7 @@
 ---
 layout: page
 title: Data Flow
+tags: [data-flow, import, duckdb]
 ---
 
 # Data Flow

@@ -1,0 +1,35 @@
+<!--
+  Override of the Chirpy theme's "Recently Updated" panel.
+
+  Upstream Chirpy builds this list from `site.posts`. This project only
+  ships documentation pages (no blog posts), so instead we list the
+  documentation pages sorted by `last_modified_at`, which is populated by
+  the jekyll-last-modified-at plugin from each file's git history.
+-->
+
+{% assign MAX_SIZE = 5 %}
+
+{% assign doc_pages = '' | split: '' %}
+{% for p in site.pages %}
+  {% if p.layout == 'page' and p.path contains '.md' %}
+    {% unless p.path contains 'assets' %}
+      {% assign doc_pages = doc_pages | push: p %}
+    {% endunless %}
+  {% endif %}
+{% endfor %}
+
+{% assign sorted_pages = doc_pages | sort: 'last_modified_at' | reverse %}
+
+{% if sorted_pages.size > 0 %}
+  <section id="access-lastmod">
+    <h2 class="panel-heading">{{- site.data.locales[include.lang].panel.lastmod -}}</h2>
+    <ul class="content list-unstyled ps-0 pb-1 ms-1 mt-2">
+      {% for doc in sorted_pages limit: MAX_SIZE %}
+        <li class="text-truncate lh-lg">
+          <a href="{{ doc.url | relative_url }}">{{ doc.title }}</a>
+        </li>
+      {% endfor %}
+    </ul>
+  </section>
+  <!-- #access-lastmod -->
+{% endif %}
