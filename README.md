@@ -94,12 +94,10 @@ python src/finance_cli.py --search "rent"
 More detailed documentation is available in `docs/`:
 
 - [Installation](docs/installation.md)
-- [Usage](docs/usage.md)
 - [Architecture](docs/architecture.md)
 - [CLI Reference](docs/cli.md)
 - [Dashboard](docs/dashboard.md)
 - [Data Flow](docs/data-flow.md)
-- [Sample Data](docs/sample-data.md)
 
 ## License
 

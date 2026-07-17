@@ -1,3 +1,8 @@
+---
+layout: page
+title: Dashboard
+---
+
 # Dashboard
 
 The Finance mosaix dashboard is a Streamlit app for interactive financial analysis, reporting, and data management.
@@ -96,3 +101,8 @@ The Settings page includes:
 5. Use Data Organizer to clean or normalize imported data when needed.
 
 For command-line operations, see [CLI Reference](cli.md).
+
+## Dashboard vs CLI
+
+The dashboard is best for interactive analysis, visualization, and guided maintenance tasks.
+For automation, scripted imports, and terminal-first workflows, use the CLI.

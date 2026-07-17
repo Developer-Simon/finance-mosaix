@@ -1,3 +1,8 @@
+---
+layout: page
+title: CLI Reference
+---
+
 # CLI Reference
 
 The Finance mosaix command-line interface is a lightweight way to manage your DuckDB database, import Excel transactions, and run quick finance queries without opening a browser.
@@ -19,6 +24,8 @@ python src/finance_cli.py --help
 ```
 
 If the package is installed, you may also use the installed entry point instead of the local script.
+
+The project public name is Finance mosaix, while the internal package/project directory conventions are `FinanceMosaix` and `finance-mosaix/`.
 
 ## Commands
 
@@ -85,3 +92,8 @@ The default database file is `finance.duckdb` in the project root. You can use t
 4. Open the dashboard to review charts and metrics after import.
 
 For interactive dashboard workflows, see [Dashboard](dashboard.md).
+
+## CLI vs Dashboard
+
+Use the CLI when you prefer scripts, automation, and terminal reports.
+Use the dashboard when you want interactive visual exploration and guided data maintenance.

@@ -1,3 +1,8 @@
+---
+layout: page
+title: Data Flow
+---
+
 # Data Flow
 
 Finance mosaix uses DuckDB as a shared backend for both the CLI and the dashboard. This page explains how data enters the system and how it is reused across the project.

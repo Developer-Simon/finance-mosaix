@@ -1,3 +1,8 @@
+---
+layout: page
+title: Finance mosaix Documentation
+---
+
 # Finance mosaix Documentation
 
 ![Dashboard overview](img/dashboard/home.png)
@@ -7,12 +12,10 @@ Finance mosaix is a DuckDB-backed personal finance tracker with Excel import wor
 ## Documentation
 
 - [Installation](installation.md)
-- [Usage](usage.md)
 - [Architecture](architecture.md)
 - [CLI Reference](cli.md)
 - [Dashboard](dashboard.md)
 - [Data Flow](data-flow.md)
-- [Sample Data](sample-data.md)
 
 ## Quick links
 
