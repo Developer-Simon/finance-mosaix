@@ -1,8 +1,12 @@
 # Usage
 
-Finance mosaix supports both a command-line interface and a dashboard.
+Finance mosaix supports two complementary application surfaces: a command-line interface and a browser-based dashboard.
 
-## Naming and folders
+## CLI
+
+Finance mosaix provides a CLI for fast import workflows, database inspection, and terminal-based reporting.
+
+### Naming and folders
 
 Finance mosaix is the public brand. The internal package name is `FinanceMosaix`, and the project lives in the `finance-mosaix/` directory.
 
@@ -57,7 +61,11 @@ python src/finance_cli.py --schema
 python src/finance_cli.py --normalize goods
 ```
 
+For a full CLI reference, see [CLI Reference](cli.md).
+
 ## Dashboard
+
+The dashboard is a Streamlit application for interactive charts, metrics, and data maintenance.
 
 Start the dashboard with:
 
@@ -70,6 +78,8 @@ The dashboard provides:
 - account and transaction summaries
 - charts and metrics
 - asset and goods valuation views
+
+For a full dashboard walkthrough, see [Dashboard](dashboard.md).
 
 ## Database file
 

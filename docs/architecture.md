@@ -35,6 +35,15 @@ The `dashboard/` package uses Streamlit to render views and charts.
 - `dashboard/import.py`: import UX and file handling
 - `dashboard/data_creator.py`, `data_editor.py`, `data_organizer.py`: data manipulation views
 
+## CLI vs Dashboard
+
+Finance mosaix exposes two separate application surfaces:
+
+- CLI: lightweight command-line workflows for data import, database inspection, and quick queries.
+- Dashboard: interactive visualization, report exploration, and data maintenance.
+
+Both interfaces share the same DuckDB backend, so data imported in the CLI can be reviewed in the dashboard, and changes made through the dashboard are visible to the CLI.
+
 ## Data flow
 
 1. User imports Excel data.
