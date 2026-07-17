@@ -45,9 +45,9 @@ The `dashboard/` package uses Streamlit to render views and charts.
 
 ## Testing and packaging
 
-- `pytest.ini` is configured to run tests from `test/`.
+- `tool.pytest.ini_options` is configured to run tests from `test/`.
 - `pythonpath = src` ensures the test suite can import the core modules correctly.
-- `requirements.txt` captures runtime and test dependencies with version constraints.
+- `pyproject.toml` captures runtime and optional dependency groups for test, dev, and docs workflows.
 
 ## Mainline branch
 

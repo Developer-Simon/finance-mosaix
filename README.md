@@ -1,5 +1,12 @@
 # Finance mosaix
 
+[![Python Tests](https://github.com/Developer-Simon/finance-mosaix/actions/workflows/pytest.yml/badge.svg)](https://github.com/Developer-Simon/finance-mosaix/actions/workflows/pytest.yml)
+[![Build package](https://github.com/Developer-Simon/finance-mosaix/actions/workflows/package.yml/badge.svg)](https://github.com/Developer-Simon/finance-mosaix/actions/workflows/package.yml)
+[![Publish docs](https://github.com/Developer-Simon/finance-mosaix/actions/workflows/pages.yml/badge.svg)](https://github.com/Developer-Simon/finance-mosaix/actions/workflows/pages.yml)
+[![Release Please](https://github.com/Developer-Simon/finance-mosaix/actions/workflows/release-please.yml/badge.svg)](https://github.com/Developer-Simon/finance-mosaix/actions/workflows/release-please.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-brightgreen.svg)](LICENSE)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
+
 Finance mosaix is a DuckDB-based personal finance application for importing Excel transaction sheets, tracking cash flow, monitoring assets, and visualizing results with a Streamlit dashboard.
 
 ![img.png](docs/img/Dashboard.png)
@@ -35,10 +42,11 @@ python -m venv .venv
 .\.venv\Scripts\activate
 ```
 
-2. Install dependencies:
+2. Install the package and runtime dependencies:
 
 ```bash
-pip install -r requirements.txt
+python -m pip install --upgrade pip
+python -m pip install .
 ```
 
 3. Generate a sample database with realistic data:
@@ -85,9 +93,9 @@ python src/finance_cli.py --search "rent"
 
 More detailed documentation is available in `docs/`:
 
-- `docs/installation.md`
-- `docs/usage.md`
-- `docs/architecture.md`
+- [Installation](docs/installation.md)
+- [Usage](docs/usage.md)
+- [Architecture](docs/architecture.md)
 
 ## License
 

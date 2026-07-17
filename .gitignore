@@ -3,4 +3,16 @@
 *.wal
 *.pid
 *~$*
+.dashboard.pid
 dashboard/settings.json
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.coverage
+.DS_Store
+Thumbs.db
+.vscode/
+build/
+dist/
+*.egg-info/
+pip-wheel-metadata/

@@ -2,7 +2,7 @@ import duckdb
 import unittest
 from pathlib import Path
 
-from test_helpers import FinanceDatabaseTestCase
+from .test_helpers import FinanceDatabaseTestCase
 
 
 class TestDatabaseSchema(FinanceDatabaseTestCase):

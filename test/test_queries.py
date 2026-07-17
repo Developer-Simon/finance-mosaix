@@ -3,7 +3,7 @@ import unittest
 
 import duckdb
 
-from test_helpers import FinanceDatabaseTestCase
+from .test_helpers import FinanceDatabaseTestCase
 from query_finance import FinanceQueries
 from stock_queries import StockQueries
 from dashboard.data_creator import _get_stock_snapshot_prefill_for_date
