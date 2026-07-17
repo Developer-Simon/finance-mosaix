@@ -1,24 +1,28 @@
 ---
 layout: page
 title: Finance mosaix Documentation
+description: Get started with Finance mosaix, the DuckDB-backed personal finance tracker with CLI tools, dashboard features, and import workflows.
 ---
 
 # Finance mosaix Documentation
 
 ![Dashboard overview](img/dashboard/home.png)
 
-Finance mosaix is a DuckDB-backed personal finance tracker with Excel import workflows, CLI utilities, and a Streamlit dashboard.
+Finance mosaix is a DuckDB-backed personal finance tracker with Excel import workflows, CLI utilities, and a Streamlit-based dashboard. This documentation hub helps you install, configure, and run the project efficiently.
 
-## Documentation
+## Start here
 
-- [Installation](installation.md)
-- [Architecture](architecture.md)
-- [CLI Reference](cli.md)
-- [Dashboard](dashboard.md)
-- [Data Flow](data-flow.md)
+- **[Installation](installation.md)** — set up your environment, dependencies, and initial database.
+- **[CLI Reference](cli.md)** — learn the commands used to import, analyze, and maintain your finance data.
+- **[Dashboard](dashboard.md)** — explore the reporting interface, charts, and workbook workflows.
 
-## Quick links
+## Explore the system
 
-- [Project home](../README.md)
+- **[Architecture](architecture.md)** — understand the data model, application layers, and integration points.
+- **[Data Flow](data-flow.md)** — follow the import and processing pipelines from raw Excel to DuckDB insights.
+- **[Project home](../README.md)** — full repository overview, contribution guide, and project status.
+
+## Connect
+
 - [GitHub repository](https://github.com/Developer-Simon/finance-mosaix)
 - [Open an issue](https://github.com/Developer-Simon/finance-mosaix/issues)
