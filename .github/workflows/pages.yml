@@ -18,10 +18,23 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - uses: actions/configure-pages@v5
-      - uses: actions/jekyll-build-pages@v1
+
+      - uses: ruby/setup-ruby@v1
         with:
-          source: ./docs
+          ruby-version: '3.3'
+          bundler-cache: true
+          working-directory: docs
+
+      - name: Install gems
+        working-directory: docs
+        run: bundle install
+
+      - name: Build site
+        working-directory: docs
+        run: bundle exec jekyll build -d ../_site
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
