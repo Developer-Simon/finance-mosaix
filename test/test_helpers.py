@@ -18,7 +18,7 @@ from db_schema import init_database
 
 
 def sample_excel_path(sample_name: str = "Sample.xlsx") -> Path:
-    return ROOT_DIR / "Import" / sample_name
+    return ROOT_DIR / "import" / sample_name
 
 
 def create_temp_database():
