@@ -2,6 +2,17 @@ title: Finance Mosaix
 description: DuckDB-backed personal finance tracker documentation for CLI tools, dashboard workflows, and data import.
 url: "https://Developer-Simon.github.io"
 baseurl: "/finance-mosaix"
+
+github:
+  username: Developer-Simon
+
+social:
+  name: Finance Mosaix
+  email: ""
+  fediverse_handle: ""
+  links:
+    - https://github.com/Developer-Simon
+
 theme: jekyll-theme-chirpy
 tagline: "DuckDB-backed personal finance tracker documentation"
 favicon: "/img/favicon.ico"
@@ -64,6 +75,8 @@ defaults:
       layout: "page"
       author: "Finance Mosaix"
       toc: true
+      panel_includes:
+        - toc
       show_sidebar: true
       sidebar:
         - title: "Docs"

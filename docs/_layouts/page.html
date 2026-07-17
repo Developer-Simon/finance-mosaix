@@ -1,5 +1,6 @@
 ---
 layout: default
+toc: true
 panel_includes:
   - toc
 ---
@@ -22,3 +23,37 @@ panel_includes:
     {{ content }}
   {% endif %}
 </article>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var toc = document.getElementById('toc');
+    if (!toc) return;
+
+    var headings = Array.from(document.querySelectorAll('main article .content h2[id], main article .content h3[id]'));
+    if (!headings.length) {
+      var wrapper = document.getElementById('toc-wrapper');
+      if (wrapper) wrapper.style.display = 'none';
+      return;
+    }
+
+    var list = document.createElement('ul');
+    list.className = 'list-unstyled mb-0';
+
+    headings.forEach(function (heading) {
+      var item = document.createElement('li');
+      if (heading.tagName.toLowerCase() === 'h3') {
+        item.className = 'ms-3';
+      }
+
+      var link = document.createElement('a');
+      link.href = '#' + heading.id;
+      link.textContent = heading.textContent.trim();
+      link.className = 'toc-link d-inline-block text-muted';
+
+      item.appendChild(link);
+      list.appendChild(item);
+    });
+
+    toc.innerHTML = '';
+    toc.appendChild(list);
+  });
+</script>
