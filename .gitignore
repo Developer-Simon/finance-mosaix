@@ -4,6 +4,7 @@
 .pytest_cache/
 .mypy_cache/
 .coverage
+.venv/
 
 # Database and runtime state
 *.duckdb
@@ -22,6 +23,12 @@ build/
 dist/
 *.egg-info/
 pip-wheel-metadata/
+
+# Electron build/runtime artifacts
+electron/VERSION
+electron/dist/
+electron/node_modules/
+electron/python-runtime/
 
 # Documentation site build output
 docs/_site/

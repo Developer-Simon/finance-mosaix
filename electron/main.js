@@ -1,0 +1,249 @@
+const { app, BrowserWindow, dialog } = require('electron');
+const { spawn, spawnSync } = require('child_process');
+const fs = require('fs');
+const net = require('net');
+const path = require('path');
+
+const HOST = '127.0.0.1';
+const PORT = Number(process.env.STREAMLIT_PORT || process.env.PORT || 8501);
+const STREAMLIT_URL = `http://${HOST}:${PORT}`;
+const APP_ROOT = path.resolve(__dirname, '..');
+const PACKAGED_PYTHON_RUNTIME = path.join(process.resourcesPath, 'python-runtime');
+const DEV_PYTHON_RUNTIME = path.join(APP_ROOT, 'electron', 'python-runtime');
+const electronPackage = require('./package.json');
+const ELECTRON_PACKAGE_VERSION = electronPackage.version;
+
+function normalizePythonExecutablePath(value) {
+  if (!value || typeof value !== 'string') {
+    return null;
+  }
+
+  const trimmed = value.trim();
+  if ((trimmed.startsWith('"') && trimmed.endsWith('"')) ||
+      (trimmed.startsWith("'") && trimmed.endsWith("'"))) {
+    return trimmed.slice(1, -1);
+  }
+  return trimmed;
+}
+
+function rewriteVenvConfig(runtimePath) {
+  const cfgPath = path.join(runtimePath, 'pyvenv.cfg');
+  if (!fs.existsSync(cfgPath)) {
+    return;
+  }
+
+  try {
+    let text = fs.readFileSync(cfgPath, 'utf8');
+    const runtimePython = process.platform === 'win32'
+      ? path.join(runtimePath, 'Scripts', 'python.exe')
+      : path.join(runtimePath, 'bin', 'python');
+    const runtimeHome = process.platform === 'win32'
+      ? path.join(runtimePath, 'Scripts')
+      : path.join(runtimePath, 'bin');
+    const runtimeCommand = `${runtimePython} -m venv --without-scm-ignore-files ${runtimePath}`;
+
+    const replacements = [
+      [/^home = .*$/m, `home = ${runtimeHome}`],
+      [/^executable = .*$/m, `executable = ${runtimePython}`],
+      [/^command = .*$/m, `command = ${runtimeCommand}`],
+    ];
+
+    let changed = false;
+    for (const [regex, replacement] of replacements) {
+      if (regex.test(text)) {
+        const updated = text.replace(regex, replacement);
+        if (updated !== text) {
+          text = updated;
+          changed = true;
+        }
+      }
+    }
+
+    if (changed) {
+      fs.writeFileSync(cfgPath, text, 'utf8');
+      console.log(`[Electron] Rewritten venv config at ${cfgPath}`);
+    }
+  } catch (error) {
+    console.warn(`[Electron] Failed to rewrite venv config at ${cfgPath}: ${error.message}`);
+  }
+}
+
+function getPythonExecutable() {
+  for (const runtimePath of [PACKAGED_PYTHON_RUNTIME, DEV_PYTHON_RUNTIME]) {
+    if (fs.existsSync(runtimePath)) {
+      rewriteVenvConfig(runtimePath);
+      // The Windows runtime is built from the official embeddable CPython
+      // distribution, which places python.exe directly in the runtime root.
+      // Fall back to the classic venv layout (Scripts/python.exe) for any
+      // older, locally built runtimes that still use that structure.
+      const candidates = process.platform === 'win32'
+        ? [path.join(runtimePath, 'python.exe'), path.join(runtimePath, 'Scripts', 'python.exe')]
+        : [path.join(runtimePath, 'bin', 'python')];
+      const candidate = candidates.find((candidatePath) => fs.existsSync(candidatePath));
+      if (candidate) {
+        console.log(`[Electron] Using embedded Python runtime: ${candidate}`);
+        return candidate;
+      }
+    }
+  }
+
+  const envPythonPath = normalizePythonExecutablePath(process.env.PYTHON_EXECUTABLE);
+  if (envPythonPath) {
+    if (fs.existsSync(envPythonPath)) {
+      console.log(`[Electron] Using PYTHON_EXECUTABLE from environment: ${envPythonPath}`);
+      return envPythonPath;
+    }
+    console.warn(`[Electron] Ignoring PYTHON_EXECUTABLE because it does not exist: ${envPythonPath}`);
+  }
+
+  const defaultPython = process.platform === 'win32' ? 'python.exe' : 'python3';
+  console.log(`[Electron] Using default Python executable: ${defaultPython}`);
+  return defaultPython;
+}
+
+let pythonProcess = null;
+let mainWindow = null;
+
+function waitForServer(host, port, timeout = 30000) {
+  return new Promise((resolve, reject) => {
+    const startTime = Date.now();
+
+    const attempt = () => {
+      const socket = new net.Socket();
+      socket.setTimeout(1000);
+      socket.once('error', () => {
+        socket.destroy();
+        if (Date.now() - startTime > timeout) {
+          reject(new Error(`Streamlit did not become available within ${timeout}ms`));
+        } else {
+          setTimeout(attempt, 300);
+        }
+      });
+      socket.once('timeout', () => {
+        socket.destroy();
+        if (Date.now() - startTime > timeout) {
+          reject(new Error(`Streamlit did not become available within ${timeout}ms`));
+        } else {
+          setTimeout(attempt, 300);
+        }
+      });
+      socket.connect(port, host, () => {
+        socket.end();
+        resolve();
+      });
+    };
+
+    attempt();
+  });
+}
+
+function startStreamlit() {
+  const python = getPythonExecutable();
+  const args = [
+    '-m',
+    'streamlit',
+    'run',
+    'dashboard/app.py',
+    '--server.headless',
+    'true',
+    '--server.address',
+    HOST,
+    '--server.port',
+    String(PORT),
+    '--server.enableCORS',
+    'false',
+    '--server.enableXsrfProtection',
+    'false',
+  ];
+
+  pythonProcess = spawn(python, args, {
+    cwd: APP_ROOT,
+    env: process.env,
+  });
+
+  pythonProcess.stdout.on('data', (chunk) => {
+    console.log(`[Streamlit] ${chunk.toString().trim()}`);
+  });
+
+  pythonProcess.stderr.on('data', (chunk) => {
+    console.error(`[Streamlit] ${chunk.toString().trim()}`);
+  });
+
+  pythonProcess.on('exit', (code, signal) => {
+    console.log(`Streamlit process exited with code=${code} signal=${signal}`);
+    pythonProcess = null;
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.close();
+    }
+  });
+
+  pythonProcess.on('error', (error) => {
+    dialog.showErrorBox('Streamlit Launch Error', error.message);
+    stopStreamlit();
+    app.quit();
+  });
+}
+
+function stopStreamlit() {
+  if (pythonProcess && !pythonProcess.killed) {
+    pythonProcess.kill();
+    pythonProcess = null;
+  }
+}
+
+function createWindow() {
+  mainWindow = new BrowserWindow({
+    width: 1280,
+    height: 900,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+      contextIsolation: true,
+      nodeIntegration: false,
+    },
+  });
+
+  mainWindow.loadURL(STREAMLIT_URL);
+  mainWindow.on('closed', () => {
+    mainWindow = null;
+  });
+}
+
+async function start() {
+  try {
+    startStreamlit();
+    await waitForServer(HOST, PORT, 30000);
+    createWindow();
+  } catch (error) {
+    dialog.showErrorBox('Streamlit startup failed', error.message);
+    stopStreamlit();
+    app.quit();
+  }
+}
+
+if (ELECTRON_PACKAGE_VERSION) {
+  app.once('ready', () => {
+    try {
+      app.setVersion(ELECTRON_PACKAGE_VERSION);
+    } catch (error) {
+      console.warn('Unable to set Electron app version:', error.message);
+    }
+  });
+}
+
+app.on('ready', start);
+
+app.on('before-quit', () => {
+  stopStreamlit();
+});
+
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
+});
+
+app.on('activate', () => {
+  if (BrowserWindow.getAllWindows().length === 0) {
+    createWindow();
+  }
+});

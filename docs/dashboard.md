@@ -22,6 +22,15 @@ python start_dashboard.py
 
 The local URL provided by Streamlit opens automatically in your browser.
 
+## Desktop app and Home Assistant add-on
+
+Finance mosaix can be delivered in multiple ways:
+
+- **Source install** for developers and advanced users using the existing Python project.
+- **Desktop Electron app** that bundles the Streamlit dashboard into a native desktop application.
+
+For details on Electron and Home Assistant packaging, see the repository documentation.
+
 ## Dashboard pages
 
 ### Onboarding
