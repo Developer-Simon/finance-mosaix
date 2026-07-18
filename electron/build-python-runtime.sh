@@ -13,7 +13,10 @@ $PYTHON -m venv "$RUNTIME_DIR"
 
 source "$RUNTIME_DIR/bin/activate"
 python -m pip install --upgrade pip setuptools wheel
-python -m pip install --no-cache-dir -e "$ROOT_DIR"
+# Non-editable install: an editable install (`-e`) only writes a path finder
+# pointing back at this checkout, which breaks once the runtime is moved to
+# another machine. Install a real copy instead so the runtime is relocatable.
+python -m pip install --no-cache-dir "$ROOT_DIR"
 deactivate
 
 echo "Python runtime bundle created at $RUNTIME_DIR"

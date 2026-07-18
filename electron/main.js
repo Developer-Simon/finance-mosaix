@@ -72,10 +72,15 @@ function getPythonExecutable() {
   for (const runtimePath of [PACKAGED_PYTHON_RUNTIME, DEV_PYTHON_RUNTIME]) {
     if (fs.existsSync(runtimePath)) {
       rewriteVenvConfig(runtimePath);
-      const candidate = process.platform === 'win32'
-        ? path.join(runtimePath, 'Scripts', 'python.exe')
-        : path.join(runtimePath, 'bin', 'python');
-      if (fs.existsSync(candidate)) {
+      // The Windows runtime is built from the official embeddable CPython
+      // distribution, which places python.exe directly in the runtime root.
+      // Fall back to the classic venv layout (Scripts/python.exe) for any
+      // older, locally built runtimes that still use that structure.
+      const candidates = process.platform === 'win32'
+        ? [path.join(runtimePath, 'python.exe'), path.join(runtimePath, 'Scripts', 'python.exe')]
+        : [path.join(runtimePath, 'bin', 'python')];
+      const candidate = candidates.find((candidatePath) => fs.existsSync(candidatePath));
+      if (candidate) {
         console.log(`[Electron] Using embedded Python runtime: ${candidate}`);
         return candidate;
       }
