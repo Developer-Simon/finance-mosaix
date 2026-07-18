@@ -13,21 +13,87 @@ const DEV_PYTHON_RUNTIME = path.join(APP_ROOT, 'electron', 'python-runtime');
 const electronPackage = require('./package.json');
 const ELECTRON_PACKAGE_VERSION = electronPackage.version;
 
-function getPythonExecutable() {
-  if (process.env.PYTHON_EXECUTABLE) {
-    return process.env.PYTHON_EXECUTABLE;
+function normalizePythonExecutablePath(value) {
+  if (!value || typeof value !== 'string') {
+    return null;
   }
 
+  const trimmed = value.trim();
+  if ((trimmed.startsWith('"') && trimmed.endsWith('"')) ||
+      (trimmed.startsWith("'") && trimmed.endsWith("'"))) {
+    return trimmed.slice(1, -1);
+  }
+  return trimmed;
+}
+
+function rewriteVenvConfig(runtimePath) {
+  const cfgPath = path.join(runtimePath, 'pyvenv.cfg');
+  if (!fs.existsSync(cfgPath)) {
+    return;
+  }
+
+  try {
+    let text = fs.readFileSync(cfgPath, 'utf8');
+    const runtimePython = process.platform === 'win32'
+      ? path.join(runtimePath, 'Scripts', 'python.exe')
+      : path.join(runtimePath, 'bin', 'python');
+    const runtimeHome = process.platform === 'win32'
+      ? path.join(runtimePath, 'Scripts')
+      : path.join(runtimePath, 'bin');
+    const runtimeCommand = `${runtimePython} -m venv --without-scm-ignore-files ${runtimePath}`;
+
+    const replacements = [
+      [/^home = .*$/m, `home = ${runtimeHome}`],
+      [/^executable = .*$/m, `executable = ${runtimePython}`],
+      [/^command = .*$/m, `command = ${runtimeCommand}`],
+    ];
+
+    let changed = false;
+    for (const [regex, replacement] of replacements) {
+      if (regex.test(text)) {
+        const updated = text.replace(regex, replacement);
+        if (updated !== text) {
+          text = updated;
+          changed = true;
+        }
+      }
+    }
+
+    if (changed) {
+      fs.writeFileSync(cfgPath, text, 'utf8');
+      console.log(`[Electron] Rewritten venv config at ${cfgPath}`);
+    }
+  } catch (error) {
+    console.warn(`[Electron] Failed to rewrite venv config at ${cfgPath}: ${error.message}`);
+  }
+}
+
+function getPythonExecutable() {
   for (const runtimePath of [PACKAGED_PYTHON_RUNTIME, DEV_PYTHON_RUNTIME]) {
     if (fs.existsSync(runtimePath)) {
-      if (process.platform === 'win32') {
-        return path.join(runtimePath, 'Scripts', 'python.exe');
+      rewriteVenvConfig(runtimePath);
+      const candidate = process.platform === 'win32'
+        ? path.join(runtimePath, 'Scripts', 'python.exe')
+        : path.join(runtimePath, 'bin', 'python');
+      if (fs.existsSync(candidate)) {
+        console.log(`[Electron] Using embedded Python runtime: ${candidate}`);
+        return candidate;
       }
-      return path.join(runtimePath, 'bin', 'python');
     }
   }
 
-  return process.platform === 'win32' ? 'python.exe' : 'python3';
+  const envPythonPath = normalizePythonExecutablePath(process.env.PYTHON_EXECUTABLE);
+  if (envPythonPath) {
+    if (fs.existsSync(envPythonPath)) {
+      console.log(`[Electron] Using PYTHON_EXECUTABLE from environment: ${envPythonPath}`);
+      return envPythonPath;
+    }
+    console.warn(`[Electron] Ignoring PYTHON_EXECUTABLE because it does not exist: ${envPythonPath}`);
+  }
+
+  const defaultPython = process.platform === 'win32' ? 'python.exe' : 'python3';
+  console.log(`[Electron] Using default Python executable: ${defaultPython}`);
+  return defaultPython;
 }
 
 let pythonProcess = null;
