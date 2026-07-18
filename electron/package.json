@@ -25,7 +25,7 @@
   "build": {
     "appId": "com.finance.mosaix.dashboard",
     "productName": "Finance Mosaix Dashboard",
-    "icon": "../docs/img/favicon.ico",
+    "icon": "../docs/img/favicon-256.png",
     "files": [
       "main.js",
       "preload.js",
@@ -76,6 +76,7 @@
     },
     "publish": null,
     "win": {
+      "icon": "../docs/img/favicon.ico",
       "target": [
         "nsis"
       ]
