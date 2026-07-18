@@ -137,3 +137,52 @@ Remove-Item -Recurse -Force python-runtime
 python build_python_runtime.py
 npm start
 ```
+
+## Electron Version Resolution In CI
+
+### Symptom
+
+During `npm run dist`, the version sync step (`electron/sync_version.js`) can report:
+
+- `Electron package version updated -> 0.0.0`
+
+This causes Electron package metadata to regress to a placeholder version.
+
+### Root cause pattern
+
+`electron/sync_version.js` asks Python for `src.version.get_canonical_version()`.
+If `setuptools_scm` is not available in the Python environment used by the workflow,
+SCM-based version resolution may fail and fallback selection becomes critical.
+
+In this project, installed package metadata may temporarily be `0.0.0` in build
+flows, so treating installed metadata as a strong source can produce an incorrect
+Electron version.
+
+### Guardrails implemented
+
+1. `src/version.py` now treats installed metadata version `0.0.0` as a placeholder
+   and ignores it.
+2. `src/version.py` now reads `[tool.setuptools_scm].fallback_version` from
+   `pyproject.toml` and uses it before installed package metadata.
+3. `.github/workflows/electron-package.yml` now installs `setuptools_scm` in both
+   Windows and Linux packaging jobs.
+4. `test/test_version_sync.py` includes regression tests for this exact fallback
+   scenario.
+
+### Current canonical fallback order
+
+`get_canonical_version()` resolves version in this order:
+
+1. `project.version` in `pyproject.toml` (if static versioning is used later)
+2. `setuptools_scm.get_version(...)`
+3. root `VERSION` file
+4. `electron/VERSION`
+5. `[tool.setuptools_scm].fallback_version`
+6. installed package metadata (except `0.0.0` placeholder)
+
+### CI checklist for future changes
+
+- Keep `actions/checkout` with `fetch-depth: 0` so tags/history are available.
+- Ensure `setuptools_scm` is installed before `npm run dist`.
+- If versioning behavior changes, run `pytest test/test_version_sync.py -q`.
+- Do not rely on installed package metadata alone for canonical versioning.
