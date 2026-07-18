@@ -10,6 +10,8 @@ const STREAMLIT_URL = `http://${HOST}:${PORT}`;
 const APP_ROOT = path.resolve(__dirname, '..');
 const PACKAGED_PYTHON_RUNTIME = path.join(process.resourcesPath, 'python-runtime');
 const DEV_PYTHON_RUNTIME = path.join(APP_ROOT, 'electron', 'python-runtime');
+const electronPackage = require('./package.json');
+const ELECTRON_PACKAGE_VERSION = electronPackage.version;
 
 function getPythonExecutable() {
   if (process.env.PYTHON_EXECUTABLE) {
@@ -27,50 +29,6 @@ function getPythonExecutable() {
 
   return process.platform === 'win32' ? 'python.exe' : 'python3';
 }
-
-function getCanonicalVersion() {
-  const python = getPythonExecutable();
-  const script = [
-    'import sys',
-    'from pathlib import Path',
-    'root = Path(\'.\').resolve()',
-    'sys.path.insert(0, str(root / "src"))',
-    'sys.path.insert(0, str(root))',
-    'from src.version import get_canonical_version',
-    'print(get_canonical_version())',
-  ].join('; ');
-
-  const result = spawnSync(python, ['-c', script], {
-    cwd: APP_ROOT,
-    encoding: 'utf8',
-  });
-
-  if (result.error || result.status !== 0) {
-    console.error('Failed to resolve canonical version:', result.error ? result.error.message : result.stderr || result.stdout);
-    return null;
-  }
-
-  return result.stdout.trim();
-}
-
-function syncElectronPackageVersion() {
-  const version = getCanonicalVersion();
-  if (!version) {
-    return null;
-  }
-
-  const packagePath = path.join(__dirname, 'package.json');
-  const packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
-
-  if (packageJson.version !== version) {
-    packageJson.version = version;
-    fs.writeFileSync(packagePath, JSON.stringify(packageJson, null, 2) + '\n', 'utf8');
-  }
-
-  return version;
-}
-
-const CANONICAL_VERSION = syncElectronPackageVersion();
 
 let pythonProcess = null;
 let mainWindow = null;
@@ -191,10 +149,10 @@ async function start() {
   }
 }
 
-if (CANONICAL_VERSION) {
+if (ELECTRON_PACKAGE_VERSION) {
   app.once('ready', () => {
     try {
-      app.setVersion(CANONICAL_VERSION);
+      app.setVersion(ELECTRON_PACKAGE_VERSION);
     } catch (error) {
       console.warn('Unable to set Electron app version:', error.message);
     }

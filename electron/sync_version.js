@@ -5,7 +5,11 @@ const path = require('path');
 const ROOT = path.resolve(__dirname, '..');
 const PACKAGE_JSON = path.join(ROOT, 'electron', 'package.json');
 const VERSION_FILE = path.join(ROOT, 'electron', 'VERSION');
-
+function normalizeElectronVersion(version) {
+  return String(version)
+    .replace(/\.post(?=\d+)/g, '-post')
+    .replace(/\.dev(?=\d+)/g, '-dev');
+}
 function fetchVersionFromPython() {
   const python = process.env.PYTHON_EXECUTABLE || 'python';
   const script = [
@@ -30,9 +34,10 @@ function fetchVersionFromPython() {
 }
 
 function updateElectronPackage(version) {
+  const normalizedVersion = normalizeElectronVersion(version);
   const packageJson = JSON.parse(fs.readFileSync(PACKAGE_JSON, 'utf8'));
-  if (packageJson.version !== version) {
-    packageJson.version = version;
+  if (packageJson.version !== normalizedVersion) {
+    packageJson.version = normalizedVersion;
     fs.writeFileSync(PACKAGE_JSON, JSON.stringify(packageJson, null, 2) + '\n', 'utf8');
     return true;
   }

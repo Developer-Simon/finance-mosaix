@@ -1,4 +1,5 @@
 import json
+import re
 import shutil
 import subprocess
 import sys
@@ -12,6 +13,12 @@ if str(ROOT_DIR / "src") not in sys.path:
     sys.path.insert(0, str(ROOT_DIR / "src"))
 
 from version import get_canonical_version
+
+
+def normalize_electron_package_version(version: str) -> str:
+    return re.sub(r"\.post(?=\d+)", "-post", version).replace(
+        ".dev", "-dev"
+    )
 
 
 def run_electron_version_sync() -> None:
@@ -47,12 +54,13 @@ class VersionSyncTestCase(unittest.TestCase):
 
         electron_version = package_json.get("version")
         canonical_version = get_canonical_version()
+        normalized_canonical_version = normalize_electron_package_version(canonical_version)
 
         self.assertIsNotNone(electron_version, "electron/package.json must declare a version")
         self.assertEqual(
             electron_version,
-            canonical_version,
-            "Electron package version must match the canonical project version",
+            normalized_canonical_version,
+            "Electron package version must match the normalized canonical project version",
         )
 
 
