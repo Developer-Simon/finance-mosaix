@@ -25,7 +25,7 @@ dist/
 pip-wheel-metadata/
 
 # Electron build/runtime artifacts
-electron/build_log.txt
+electron/VERSION
 electron/dist/
 electron/node_modules/
 electron/python-runtime/

@@ -42,10 +42,6 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install setuptools wheel
 
-      - name: Build Python runtime
-        run: |
-          python electron/build_python_runtime.py
-
       - name: Install Electron dependencies
         run: |
           cd electron

@@ -1,6 +1,6 @@
 {
   "name": "finance-mosaix-electron",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "Electron wrapper for the Finance Mosaix Streamlit dashboard.",
   "author": "Developer-Simon",
@@ -14,7 +14,7 @@
     "build-runtime": "node -e \"require('child_process').spawnSync('python', ['build_python_runtime.py'], {stdio:'inherit'})\"",
     "generate-icon": "node generate-icon.js",
     "sync-version": "node sync_version.js",
-    "dist": "npm run sync-version && electron-builder --publish never"
+    "dist": "npm run build-runtime && npm run sync-version && electron-builder --publish never"
   },
   "devDependencies": {
     "electron": "^26.0.0",
