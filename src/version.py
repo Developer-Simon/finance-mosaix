@@ -15,6 +15,22 @@ VERSION_FILE = ROOT_DIR / "VERSION"
 PACKAGED_VERSION_FILE = ROOT_DIR / "electron" / "VERSION"
 PYPROJECT_FILE = ROOT_DIR / "pyproject.toml"
 PACKAGE_NAME = "finance-mosaix"
+PLACEHOLDER_VERSION = "0.0.0"
+
+
+def _read_pyproject_config() -> dict[str, Any] | None:
+    if not PYPROJECT_FILE.exists():
+        return None
+
+    try:
+        import tomllib
+
+        with PYPROJECT_FILE.open("rb") as handle:
+            config = tomllib.load(handle)
+    except Exception:
+        return None
+
+    return config
 
 
 def _read_version_file() -> str | None:
@@ -35,26 +51,34 @@ def _read_packaged_version_file() -> str | None:
 
 def _read_installed_package_version() -> str | None:
     try:
-        return metadata_version(PACKAGE_NAME)
+        version = metadata_version(PACKAGE_NAME).strip()
     except PackageNotFoundError:
         return None
     except Exception:
         return None
 
-
-def _read_pyproject_version() -> str | None:
-    if not PYPROJECT_FILE.exists():
+    # Some build flows can install an interim placeholder version.
+    if version == PLACEHOLDER_VERSION:
         return None
 
-    try:
-        import tomllib
+    return version or None
 
-        with PYPROJECT_FILE.open("rb") as handle:
-            config = tomllib.load(handle)
-    except Exception:
+
+def _read_pyproject_version() -> str | None:
+    config = _read_pyproject_config()
+    if config is None:
         return None
 
     version = config.get("project", {}).get("version")
+    return str(version).strip() if version else None
+
+
+def _read_setuptools_scm_fallback_version() -> str | None:
+    config = _read_pyproject_config()
+    if config is None:
+        return None
+
+    version = config.get("tool", {}).get("setuptools_scm", {}).get("fallback_version")
     return str(version).strip() if version else None
 
 
@@ -153,6 +177,7 @@ def get_canonical_version() -> str:
         _resolve_setuptools_scm_version,
         _read_version_file,
         _read_packaged_version_file,
+        _read_setuptools_scm_fallback_version,
         _read_installed_package_version,
     ]
 

@@ -4,6 +4,7 @@ import shutil
 import subprocess
 import sys
 import unittest
+from unittest import mock
 from pathlib import Path
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
@@ -12,6 +13,7 @@ ELECTRON_DIR = ROOT_DIR / "electron"
 if str(ROOT_DIR / "src") not in sys.path:
     sys.path.insert(0, str(ROOT_DIR / "src"))
 
+import version
 from version import get_canonical_version
 
 
@@ -62,6 +64,23 @@ class VersionSyncTestCase(unittest.TestCase):
             normalized_canonical_version,
             "Electron package version must match the normalized canonical project version",
         )
+
+
+class CanonicalVersionResolutionTestCase(unittest.TestCase):
+    def test_falls_back_to_pyproject_setuptools_scm_fallback_before_installed_metadata(self):
+        with (
+            mock.patch.object(version, "_read_pyproject_version", return_value=None),
+            mock.patch.object(version, "_resolve_setuptools_scm_version", return_value=None),
+            mock.patch.object(version, "_read_version_file", return_value=None),
+            mock.patch.object(version, "_read_packaged_version_file", return_value=None),
+            mock.patch.object(version, "_read_setuptools_scm_fallback_version", return_value="0.2.0"),
+            mock.patch.object(version, "_read_installed_package_version", return_value="0.0.0"),
+        ):
+            self.assertEqual(get_canonical_version(), "0.2.0")
+
+    def test_ignores_placeholder_installed_version(self):
+        with mock.patch.object(version, "metadata_version", return_value="0.0.0"):
+            self.assertIsNone(version._read_installed_package_version())
 
 
 if __name__ == "__main__":
