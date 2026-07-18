@@ -81,6 +81,7 @@
       ]
     },
     "linux": {
+      "icon": "../docs/img/favicon-256.png",
       "target": [
         "AppImage"
       ],
