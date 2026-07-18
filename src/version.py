@@ -3,9 +3,12 @@ from __future__ import annotations
 import subprocess
 from importlib.metadata import PackageNotFoundError, version as metadata_version
 from pathlib import Path
-from typing import Callable
+from typing import Any, Callable
 
-from setuptools_scm.version import ScmVersion
+try:
+    from setuptools_scm.version import ScmVersion
+except ImportError:  # allow module import without setuptools_scm installed
+    ScmVersion = Any
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
 VERSION_FILE = ROOT_DIR / "VERSION"
@@ -137,7 +140,7 @@ def _resolve_setuptools_scm_version() -> str | None:
     try:
         return get_version(
             root=str(ROOT_DIR),
-            version_scheme="src.version:bump_patch_by_distance",
+            version_scheme=bump_patch_by_distance,
             local_scheme="dirty-tag",
         )
     except Exception:

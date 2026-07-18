@@ -45,7 +45,7 @@ include = ["src*", "dashboard*"]
 [tool.setuptools_scm]
 fallback_version = "0.2.0"
 local_scheme = "dirty-tag"
-version_scheme = "src.version:bump_patch_by_distance"
+version_scheme = "guess-next-dev"
 
 [tool.pytest.ini_options]
 minversion = "7.0"
