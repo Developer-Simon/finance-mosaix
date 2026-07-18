@@ -13,7 +13,8 @@
     "start": "electron .",
     "build-runtime": "node -e \"require('child_process').spawnSync('python', ['build_python_runtime.py'], {stdio:'inherit'})\"",
     "generate-icon": "node generate-icon.js",
-    "dist": "electron-builder --publish never"
+    "sync-version": "node sync_version.js",
+    "dist": "npm run sync-version && electron-builder --publish never"
   },
   "devDependencies": {
     "electron": "^26.0.0",
@@ -59,9 +60,15 @@
         "to": "start_dashboard.py"
       },
       {
+        "from": "../electron/VERSION",
+        "to": "VERSION"
+      },
+      {
         "from": "python-runtime",
         "to": "python-runtime",
-        "filter": ["**/*"]
+        "filter": [
+          "**/*"
+        ]
       }
     ],
     "directories": {
@@ -69,7 +76,9 @@
     },
     "publish": null,
     "win": {
-      "target": ["nsis"]
+      "target": [
+        "nsis"
+      ]
     }
   }
 }
