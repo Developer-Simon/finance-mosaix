@@ -34,12 +34,21 @@
       {
         "from": "../dashboard",
         "to": "dashboard",
-        "filter": ["**/*"]
+        "filter": [
+          "**/*",
+          "!settings.json",
+          "!**/__pycache__/**",
+          "!**/*.py[cod]"
+        ]
       },
       {
         "from": "../src",
         "to": "src",
-        "filter": ["**/*"]
+        "filter": [
+          "**/*",
+          "!**/__pycache__/**",
+          "!**/*.py[cod]"
+        ]
       },
       {
         "from": "../pyproject.toml",
