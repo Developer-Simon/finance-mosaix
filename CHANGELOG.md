@@ -1,8 +1,17 @@
 # Changelog
 
+## [0.2.1](https://github.com/Developer-Simon/finance-mosaix/compare/v0.2.0...v0.2.1) (2026-07-18)
+
+
+### Bug Fixes
+
+* add x86_64-linux platform to Gemfile.lock to fix Jekyll CI build ([#9](https://github.com/Developer-Simon/finance-mosaix/issues/9)) ([e7ab547](https://github.com/Developer-Simon/finance-mosaix/commit/e7ab54723ad8f3cf991242fe3ac45ff85fb47d0d))
+
+## Changelog
+
 All notable changes to this project will be documented in this file.
 
-# [0.2.0](https://github.com/Developer-Simon/finance-mosaix/releases/tag/v0.2.0) - 2026-07-15
+## [0.2.0](https://github.com/Developer-Simon/finance-mosaix/releases/tag/v0.2.0) - 2026-07-15
 
 ### Features
 
@@ -12,7 +21,7 @@ All notable changes to this project will be documented in this file.
 
 - Fix timeline query to include latest values on dates without snapshots.
 
-# [0.1.0](https://github.com/Developer-Simon/finance-mosaix/releases/tag/v0.1.0) - 2026-07-14
+## [0.1.0](https://github.com/Developer-Simon/finance-mosaix/releases/tag/v0.1.0) - 2026-07-14
 
 ### Features
 
