@@ -65,7 +65,7 @@ class TestDatabaseSchema(FinanceDatabaseTestCase):
         legacy_conn.commit()
         legacy_conn.close()
 
-        from query_finance import FinanceQueries
+        from finance_mosaix.core.query_finance import FinanceQueries
 
         queries = FinanceQueries(str(legacy_db_path))
 

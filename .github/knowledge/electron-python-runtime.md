@@ -6,7 +6,7 @@ Finance Mosaix.
 ## Electron app overview
 
 The `electron/` directory contains the desktop wrapper that launches the Streamlit
-dashboard from `dashboard/app.py` inside a native Electron window.
+dashboard from `src/finance_mosaix/dashboard/app.py` inside a native Electron window.
 
 ### Local development
 
@@ -150,7 +150,7 @@ This causes Electron package metadata to regress to a placeholder version.
 
 ### Root cause pattern
 
-`electron/sync_version.js` asks Python for `src.version.get_canonical_version()`.
+`electron/sync_version.js` asks Python for `finance_mosaix.core.version.get_canonical_version()`.
 If `setuptools_scm` is not available in the Python environment used by the workflow,
 SCM-based version resolution may fail and fallback selection becomes critical.
 
@@ -160,9 +160,9 @@ Electron version.
 
 ### Guardrails implemented
 
-1. `src/version.py` now treats installed metadata version `0.0.0` as a placeholder
+1. `finance_mosaix/core/version.py` now treats installed metadata version `0.0.0` as a placeholder
    and ignores it.
-2. `src/version.py` now reads `[tool.setuptools_scm].fallback_version` from
+2. `finance_mosaix/core/version.py` now reads `[tool.setuptools_scm].fallback_version` from
    `pyproject.toml` and uses it before installed package metadata.
 3. `.github/workflows/electron-package.yml` now installs `setuptools_scm` in both
    Windows and Linux packaging jobs.

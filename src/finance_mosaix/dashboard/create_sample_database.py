@@ -3,7 +3,7 @@ from datetime import date
 
 import duckdb
 
-from src.db_schema import init_database
+from finance_mosaix.core.db_schema import init_database
 
 
 def seed_sample_data(conn: duckdb.DuckDBPyConnection) -> None:
@@ -85,7 +85,7 @@ def seed_sample_data(conn: duckdb.DuckDBPyConnection) -> None:
 
 
 def main() -> None:
-    db_path = Path(__file__).resolve().parent / "finance_sample.duckdb"
+    db_path = Path(__file__).resolve().parents[3] / "finance_sample.duckdb"
     init_database(str(db_path))
     conn = duckdb.connect(str(db_path))
     seed_sample_data(conn)

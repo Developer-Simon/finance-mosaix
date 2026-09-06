@@ -7,18 +7,13 @@ Run from command line to import data and analyze finances
 import argparse
 from pathlib import Path
 
-try:
-    from .db_schema import init_database, show_schema, get_connection
-    from .import_transactions import FinanceImporter
-    from .query_finance import print_balance_summary, print_category_summary, FinanceQueries
-except ImportError:
-    from db_schema import init_database, show_schema, get_connection
-    from import_transactions import FinanceImporter
-    from query_finance import print_balance_summary, print_category_summary, FinanceQueries
+from finance_mosaix.core.db_schema import init_database, show_schema, get_connection
+from finance_mosaix.core.import_transactions import FinanceImporter
+from finance_mosaix.core.query_finance import print_balance_summary, print_category_summary, FinanceQueries
 
 
 def default_db_path() -> str:
-    return str(Path(__file__).resolve().parents[1] / "finance.duckdb")
+    return str(Path(__file__).resolve().parents[3] / "finance.duckdb")
 
 
 def main():
@@ -27,11 +22,11 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  python src/finance_cli.py --init                           # Initialize database
-  python src/finance_cli.py --import Sample.xlsx             # Import from Excel
-  python src/finance_cli.py --balance                        # Show account balances
-  python src/finance_cli.py --spending 30                    # Show last 30 days spending
-  python src/finance_cli.py --schema                         # Show database schema
+  finance-mosaix --init                           # Initialize database
+  finance-mosaix --import Sample.xlsx             # Import from Excel
+  finance-mosaix --balance                        # Show account balances
+  finance-mosaix --spending 30                    # Show last 30 days spending
+  finance-mosaix --schema                         # Show database schema
         """
     )
 

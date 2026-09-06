@@ -1,20 +1,12 @@
-import sys
 import tempfile
 import unittest
 from pathlib import Path
 
 import duckdb
 
+from finance_mosaix.core.db_schema import init_database
+
 ROOT_DIR = Path(__file__).resolve().parents[1]
-SRC_DIR = ROOT_DIR / "src"
-DASHBOARD_DIR = ROOT_DIR
-
-if str(SRC_DIR) not in sys.path:
-    sys.path.insert(0, str(SRC_DIR))
-if str(DASHBOARD_DIR) not in sys.path:
-    sys.path.insert(0, str(DASHBOARD_DIR))
-
-from db_schema import init_database
 
 
 def sample_excel_path(sample_name: str = "Sample.xlsx") -> Path:

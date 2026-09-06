@@ -9,10 +9,7 @@ import duckdb
 import os
 from pathlib import Path
 
-try:
-    from .db_migrate import migrate_database, get_db_version, set_db_version, CURRENT_DB_VERSION
-except ImportError:
-    from db_migrate import migrate_database, get_db_version, set_db_version, CURRENT_DB_VERSION
+from finance_mosaix.core.db_migrate import migrate_database, get_db_version, set_db_version, CURRENT_DB_VERSION
 
 
 class DuckDBConnectionProxy:

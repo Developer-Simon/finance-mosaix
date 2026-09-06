@@ -43,7 +43,7 @@ def get_workspace_root() -> Path:
 
 
 def get_app_path() -> Path:
-    return get_workspace_root() / "dashboard" / "app.py"
+    return get_workspace_root() / "src" / "finance_mosaix" / "dashboard" / "app.py"
 
 
 def get_pid_path() -> Path:

@@ -4,9 +4,9 @@ import unittest
 import duckdb
 
 from .test_helpers import FinanceDatabaseTestCase
-from query_finance import FinanceQueries
-from stock_queries import StockQueries
-from dashboard.data_creator import _get_stock_snapshot_prefill_for_date
+from finance_mosaix.core.query_finance import FinanceQueries
+from finance_mosaix.core.stock_queries import StockQueries
+from finance_mosaix.dashboard.data_creator import _get_stock_snapshot_prefill_for_date
 
 
 class TestFinanceQueries(FinanceDatabaseTestCase):

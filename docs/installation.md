@@ -16,7 +16,19 @@ tags: [installation, setup, getting-started]
 
 From the `finance-mosaix/` directory:
 
+Linux/macOS:
+
 ```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install .
+```
+
+Windows:
+
+```powershell
+python -m venv .venv
 .\.venv\Scripts\activate
 python -m pip install --upgrade pip
 python -m pip install .
@@ -40,7 +52,29 @@ A desktop wrapper is available under `electron/`.
 
 ### Development run
 
+Before running Electron on Linux, create and activate the project `.venv` at the repository root and install the Python dependencies:
+
+Linux/macOS:
+
 ```bash
+cd /path/to/finance-mosaix
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install .
+cd electron
+npm install
+npm start
+```
+
+Windows:
+
+```powershell
+cd \path\to\finance-mosaix
+python -m venv .venv
+.\.venv\Scripts\activate
+python -m pip install --upgrade pip
+python -m pip install .
 cd electron
 npm install
 npm start

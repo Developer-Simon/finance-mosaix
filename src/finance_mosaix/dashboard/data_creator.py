@@ -1,7 +1,7 @@
 import pandas as pd
 import streamlit as st
 
-from src.goods_depreciation import calculate_goods_current_value
+from finance_mosaix.core.goods_depreciation import calculate_goods_current_value
 
 POOL_COLUMN_CONFIG = {
     "Cash": [

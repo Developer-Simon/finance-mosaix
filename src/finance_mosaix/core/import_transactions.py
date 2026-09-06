@@ -15,10 +15,7 @@ from pathlib import Path
 import pandas as pd
 from openpyxl import load_workbook
 
-try:
-    from .db_schema import init_database, get_connection
-except ImportError:
-    from db_schema import init_database, get_connection
+from finance_mosaix.core.db_schema import init_database, get_connection
 
 
 SUMMARY_TOKENS = ["bilanz", "summe", "gesamt", "subtotal", "total", "difference", "differenz", "kaufwert", "balance"]

@@ -2,8 +2,6 @@
 Finance dashboard package.
 """
 
-import importlib
-
 from .charts import (
     timeline_line_chart,
     latest_timeline_distribution_pie,
@@ -23,8 +21,7 @@ from .charts import (
     goods_valuation_chart,
     balance_delta_chart,
 )
-_import_module = importlib.import_module(__name__ + ".import")
-render_import_view = _import_module.render_import_view
+from .import_view import render_import_view
 from .metrics import render_metrics_page
 from .data_creator import render_data_creator_view
 from .data_editor import render_data_editor_view

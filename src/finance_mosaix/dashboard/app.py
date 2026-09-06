@@ -1,17 +1,22 @@
 import calendar
 import sys
 from datetime import date, timedelta
-from importlib import import_module
 from pathlib import Path
 
 import pandas as pd
 import streamlit as st
 
-ROOT_DIR = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT_DIR))
+# Streamlit runs this file by path (`streamlit run .../app.py`), not as a module,
+# so the package root under src/ must be on sys.path. This is the single deliberate
+# path insertion in the codebase; every other module uses absolute imports.
+_SRC_DIR = Path(__file__).resolve().parents[2]
+if str(_SRC_DIR) not in sys.path:
+    sys.path.insert(0, str(_SRC_DIR))
 
-import dashboard.charts_pyplot as charts_pyplot
-from dashboard.charts import (
+ROOT_DIR = Path(__file__).resolve().parents[3]
+
+from finance_mosaix.dashboard import charts_pyplot
+from finance_mosaix.dashboard.charts import (
     timeline_line_chart,
     latest_timeline_distribution_pie,
     spending_chart,
@@ -30,19 +35,18 @@ from dashboard.charts import (
     goods_valuation_chart,
     balance_delta_chart,
 )
-from dashboard.metrics import render_metrics_page
-from dashboard.data import *
-from src.db_schema import init_database
-from src.query_finance import FinanceQueries
+from finance_mosaix.dashboard.metrics import render_metrics_page
+from finance_mosaix.dashboard.data import *
+from finance_mosaix.core.db_schema import init_database
+from finance_mosaix.core.query_finance import FinanceQueries
 
-import_module("dashboard.import")
-render_import_view = import_module("dashboard.import").render_import_view
+from finance_mosaix.dashboard.import_view import render_import_view
 
-from dashboard.data_creator import render_data_creator_view
-from dashboard.data_editor import render_data_editor_view
-from dashboard.data_organizer import render_data_organizer_view
-from dashboard.onboarding import render_onboarding_view
-from dashboard.settings import CHART_OPTIONS, SAMPLE_DATABASE_PATH, render_settings_view, load_settings, save_settings
+from finance_mosaix.dashboard.data_creator import render_data_creator_view
+from finance_mosaix.dashboard.data_editor import render_data_editor_view
+from finance_mosaix.dashboard.data_organizer import render_data_organizer_view
+from finance_mosaix.dashboard.onboarding import render_onboarding_view
+from finance_mosaix.dashboard.settings import CHART_OPTIONS, SAMPLE_DATABASE_PATH, render_settings_view, load_settings, save_settings
 
 CHART_POOL_REQUIREMENTS = {
     "Timeline": {"Cash", "Stocks", "Goods", "Interest"},
@@ -566,7 +570,7 @@ def _render_pyplot_legacy_page():
 
 
 def _render_data_editor_page():
-    from dashboard.data_editor import render_data_editor_sidebar
+    from finance_mosaix.dashboard.data_editor import render_data_editor_sidebar
 
     pool = render_data_editor_sidebar(application_mode=application_mode, expert_mode=is_expert_mode)
     effective_start_date, effective_end_date = _get_date_range()

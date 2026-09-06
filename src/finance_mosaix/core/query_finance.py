@@ -6,24 +6,16 @@ Pool-aware wrapper around cash, stock, goods, and interest query helpers.
 from datetime import datetime, timedelta
 from pathlib import Path
 
-try:
-    from .cash_queries import CashQueries
-    from .goods_queries import GoodsQueries
-    from .interest_queries import InterestQueries
-    from .stock_queries import StockQueries
-    from .account_balance_queries import AccountBalanceQueries
-    from .db_schema import get_connection
-except ImportError:
-    from cash_queries import CashQueries
-    from goods_queries import GoodsQueries
-    from interest_queries import InterestQueries
-    from stock_queries import StockQueries
-    from account_balance_queries import AccountBalanceQueries
-    from db_schema import get_connection
+from finance_mosaix.core.cash_queries import CashQueries
+from finance_mosaix.core.goods_queries import GoodsQueries
+from finance_mosaix.core.interest_queries import InterestQueries
+from finance_mosaix.core.stock_queries import StockQueries
+from finance_mosaix.core.account_balance_queries import AccountBalanceQueries
+from finance_mosaix.core.db_schema import get_connection
 
 
 def default_db_path() -> str:
-    return str(Path(__file__).resolve().parents[1] / "finance.duckdb")
+    return str(Path(__file__).resolve().parents[3] / "finance.duckdb")
 
 
 class FinanceQueries:

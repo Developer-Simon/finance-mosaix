@@ -4,16 +4,12 @@ Goods pool queries for the Finance database.
 from pathlib import Path
 from datetime import date
 
-try:
-    from .db_schema import get_connection
-    from .goods_depreciation import calculate_goods_current_value
-except ImportError:
-    from db_schema import get_connection
-    from goods_depreciation import calculate_goods_current_value
+from finance_mosaix.core.db_schema import get_connection
+from finance_mosaix.core.goods_depreciation import calculate_goods_current_value
 
 
 def default_db_path() -> str:
-    return str(Path(__file__).resolve().parents[1] / "finance.duckdb")
+    return str(Path(__file__).resolve().parents[3] / "finance.duckdb")
 
 
 class GoodsQueries:

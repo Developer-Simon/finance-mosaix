@@ -69,6 +69,15 @@ function rewriteVenvConfig(runtimePath) {
 }
 
 function getPythonExecutable() {
+  const devVenvPython = process.platform === 'win32'
+    ? path.join(APP_ROOT, '.venv', 'Scripts', 'python.exe')
+    : path.join(APP_ROOT, '.venv', 'bin', 'python');
+
+  if (fs.existsSync(devVenvPython)) {
+    console.log(`[Electron] Using local .venv Python executable: ${devVenvPython}`);
+    return devVenvPython;
+  }
+
   for (const runtimePath of [PACKAGED_PYTHON_RUNTIME, DEV_PYTHON_RUNTIME]) {
     if (fs.existsSync(runtimePath)) {
       rewriteVenvConfig(runtimePath);
@@ -143,7 +152,7 @@ function startStreamlit() {
     '-m',
     'streamlit',
     'run',
-    'dashboard/app.py',
+    'src/finance_mosaix/dashboard/app.py',
     '--server.headless',
     'true',
     '--server.address',

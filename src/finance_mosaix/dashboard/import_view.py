@@ -7,7 +7,7 @@ from pathlib import Path
 
 import streamlit as st
 
-from src.import_transactions import FinanceImporter
+from finance_mosaix.core.import_transactions import FinanceImporter
 
 
 def _save_uploaded_file(uploaded_file):

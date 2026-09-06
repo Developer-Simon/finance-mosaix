@@ -5,15 +5,8 @@ from pathlib import Path
 
 import streamlit as st
 
-try:
-    from src.db_migrate import get_db_version, CURRENT_DB_VERSION
-except ImportError:
-    from db_migrate import get_db_version, CURRENT_DB_VERSION
-
-try:
-    from src.version import get_canonical_version
-except ImportError:
-    from version import get_canonical_version
+from finance_mosaix.core.db_migrate import get_db_version, CURRENT_DB_VERSION
+from finance_mosaix.core.version import get_canonical_version
 
 SETTINGS_FILE_NAME = "settings.json"
 SAMPLE_DATABASE_PATH = "finance_sample.duckdb"

@@ -10,7 +10,7 @@ try:
 except ImportError:  # allow module import without setuptools_scm installed
     ScmVersion = Any
 
-ROOT_DIR = Path(__file__).resolve().parents[1]
+ROOT_DIR = Path(__file__).resolve().parents[3]
 VERSION_FILE = ROOT_DIR / "VERSION"
 PACKAGED_VERSION_FILE = ROOT_DIR / "electron" / "VERSION"
 PYPROJECT_FILE = ROOT_DIR / "pyproject.toml"

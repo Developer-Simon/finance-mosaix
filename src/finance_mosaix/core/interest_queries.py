@@ -3,14 +3,11 @@ Interest pool queries for the Finance database.
 """
 from pathlib import Path
 
-try:
-    from .db_schema import get_connection
-except ImportError:
-    from db_schema import get_connection
+from finance_mosaix.core.db_schema import get_connection
 
 
 def default_db_path() -> str:
-    return str(Path(__file__).resolve().parents[1] / "finance.duckdb")
+    return str(Path(__file__).resolve().parents[3] / "finance.duckdb")
 
 
 class InterestQueries:

@@ -3,9 +3,9 @@ from pathlib import Path
 import duckdb
 import streamlit as st
 
-from src.db_schema import init_database
-from dashboard.create_sample_database import seed_sample_data
-from dashboard.settings import DEFAULT_SETTINGS, SAMPLE_DATABASE_PATH, save_settings
+from finance_mosaix.core.db_schema import init_database
+from finance_mosaix.dashboard.create_sample_database import seed_sample_data
+from finance_mosaix.dashboard.settings import DEFAULT_SETTINGS, SAMPLE_DATABASE_PATH, save_settings
 
 POOL_OPTIONS = ["Cash", "Stocks", "Goods", "Interest"]
 

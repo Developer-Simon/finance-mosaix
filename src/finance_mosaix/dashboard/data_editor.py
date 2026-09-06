@@ -1,7 +1,7 @@
 import pandas as pd
 import streamlit as st
 
-from dashboard.sheets import (
+from finance_mosaix.dashboard.sheets import (
     build_pool_diff,
     build_pool_sheet,
     build_transaction_diff,
