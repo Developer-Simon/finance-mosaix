@@ -360,7 +360,7 @@ function buildMenu() {
 /** One-time notice when data of the former Windows build was found next to the new data folder. */
 async function showLegacyNoticeOnce() {
   const userDataDir = app.getPath('userData');
-  const legacy = await shouldShowLegacyNotice({ userDataDir, platform: process.platform });
+  const legacy = await shouldShowLegacyNotice({ userDataDir, platform: process.platform, env: process.env });
   if (!legacy) return;
   const { response } = await showDialog({
     type: 'info',

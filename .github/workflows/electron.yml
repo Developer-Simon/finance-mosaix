@@ -89,6 +89,7 @@ jobs:
             npm version "${TAG#v}" --no-git-tag-version --allow-same-version
             echo "${TAG#v}" > VERSION
           else
+            python -m pip install setuptools_scm
             npm run sync-version
           fi
 
