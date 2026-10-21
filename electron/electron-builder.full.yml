@@ -1,7 +1,7 @@
 # Full variant: like electron-builder.yml, plus a bundled Python interpreter
 # (electron/build/python, created by `npm run build:runtime`).
 extends: ./electron-builder.yml
-appId: io.github.developer_simon.finance_mosaix
+appId: io.github.developer-simon.finance-mosaix
 productName: Finance Mosaix
 # directories and files are repeated here in full, so buildResources and the icon
 # still apply if extends doesn't merge objects deeply.

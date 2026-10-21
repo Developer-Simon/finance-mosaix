@@ -1,6 +1,6 @@
 # Slim variant: no Python interpreter, the app uses a system Python with a managed venv.
 # The full variant is in electron-builder.full.yml and extends this file.
-appId: io.github.developer_simon.finance_mosaix
+appId: io.github.developer-simon.finance-mosaix
 productName: Finance Mosaix
 directories:
   output: dist/slim
