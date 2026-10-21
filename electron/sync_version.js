@@ -15,10 +15,8 @@ function fetchVersionFromPython() {
   const script = [
     'import sys',
     'from pathlib import Path',
-    'root = Path(\'.\').resolve()',
-    'sys.path.insert(0, str(root / \"src\"))',
-    'sys.path.insert(0, str(root))',
-    'from src.version import get_canonical_version',
+    'sys.path.insert(0, str(Path(\'.\').resolve() / \"src\"))',
+    'from finance_mosaix.core.version import get_canonical_version',
     'print(get_canonical_version())',
   ].join('; ');
 

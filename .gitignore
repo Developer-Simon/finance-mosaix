@@ -13,7 +13,7 @@
 .dashboard.pid
 *~$*
 
-dashboard/settings.json
+src/finance_mosaix/dashboard/settings.json
 
 # IDE / editor settings
 .vscode/
@@ -40,3 +40,5 @@ Thumbs.db
 
 # Lock files
 *.lock
+# Local planning notes (gitignored)
+/.docs/

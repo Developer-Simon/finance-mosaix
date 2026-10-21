@@ -21,7 +21,7 @@ Use the CLI when you want:
 From the project root:
 
 ```bash
-python src/finance_cli.py --help
+finance-mosaix --help
 ```
 
 If the package is installed, you may also use the installed entry point instead of the local script.
@@ -33,7 +33,7 @@ The project public name is Finance mosaix, while the internal package/project di
 ### Initialize the database
 
 ```bash
-python src/finance_cli.py --init
+finance-mosaix --init
 ```
 
 This creates the default DuckDB database file if it does not already exist.
@@ -41,7 +41,7 @@ This creates the default DuckDB database file if it does not already exist.
 ### Import transactions from Excel
 
 ```bash
-python src/finance_cli.py --import path/to/file.xlsx
+finance-mosaix --import path/to/file.xlsx
 ```
 
 The importer will:
@@ -54,31 +54,31 @@ The importer will:
 ### Show account balances
 
 ```bash
-python src/finance_cli.py --balance
+finance-mosaix --balance
 ```
 
 ### Show spending for the last N days
 
 ```bash
-python src/finance_cli.py --spending 30
+finance-mosaix --spending 30
 ```
 
 ### Search transactions
 
 ```bash
-python src/finance_cli.py --search "rent"
+finance-mosaix --search "rent"
 ```
 
 ### View database schema
 
 ```bash
-python src/finance_cli.py --schema
+finance-mosaix --schema
 ```
 
 ### Normalize goods valuations
 
 ```bash
-python src/finance_cli.py --normalize goods
+finance-mosaix --normalize goods
 ```
 
 ## Database file

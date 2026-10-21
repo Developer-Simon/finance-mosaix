@@ -1,0 +1,42 @@
+# Full variant: like electron-builder.yml, plus a bundled Python interpreter
+# (electron/build/python, created by `npm run build:runtime`).
+extends: ./electron-builder.yml
+appId: io.github.developer-simon.finance-mosaix
+productName: Finance Mosaix
+# directories and files are repeated here in full, so buildResources and the icon
+# still apply if extends doesn't merge objects deeply.
+directories:
+  output: dist/full
+  buildResources: assets
+files:
+  - src/**/*
+  - assets/**/*
+  - package.json
+# extends concatenates arrays: the base entries are inherited, only the runtime is added here.
+# Repeating them copied every file twice in parallel, which fails on Windows with EBUSY.
+extraResources:
+  - from: build/python
+    to: python
+linux:
+  # Flatpak only here: the sandbox has no system Python, so the slim variant wouldn't run there.
+  target: [AppImage, flatpak]
+  # Separate sizes up to 512 px: Flatpak takes no larger icons, and with only icon.png it had none at all.
+  icon: assets/icons
+  category: Office
+  desktop:
+    entry:
+      "Comment[de]": Persönliche Finanzen mit DuckDB und Streamlit
+  artifactName: "${productName}-${version}-${arch}-full.${ext}"
+flatpak:
+  runtimeVersion: "26.08"
+  baseVersion: "26.08"
+  finishArgs:
+    - --socket=wayland
+    - --socket=fallback-x11
+    - --share=ipc
+    - --device=dri
+    - --filesystem=home
+mac:
+  artifactName: "${productName}-${version}-${arch}-full.${ext}"
+win:
+  artifactName: "${productName}-${version}-${arch}-full.${ext}"

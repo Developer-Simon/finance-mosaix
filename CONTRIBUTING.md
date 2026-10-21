@@ -11,6 +11,18 @@ Thank you for considering a contribution to Finance mosaix. Your work helps impr
 4. Make your changes and test locally.
 5. Submit a pull request against the `master` branch.
 
+### Opening and merging a PR
+
+Open PRs with `scripts/dev/create-pr.sh` and merge them with
+`scripts/dev/merge-pr.sh`. The script fills the whole PR template, so nothing
+is maintained by hand afterwards. The PR title is the squash subject and a
+Conventional Commits subject, release-please builds the changelog from it. The
+fenced block in the description is the squash body: it never repeats the title
+and ends with `Co-authored-by: Claude Sonnet|Opus|Fable x.y <noreply@anthropic.com>`,
+never Haiku. Pass the model as `PR_AI_MODEL="Sonnet 5.5"`, the test suites you
+ran as `PR_SUITES`, and optionally `PR_SUMMARY`, `PR_ISSUE` or
+`PR_MESSAGE_FILE`. `merge-pr.sh --check` validates the message without merging.
+
 ## Review process
 
 - Contributions will be reviewed by the maintainer.

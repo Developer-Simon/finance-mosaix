@@ -10,11 +10,8 @@ from pathlib import Path
 ROOT_DIR = Path(__file__).resolve().parents[1]
 ELECTRON_DIR = ROOT_DIR / "electron"
 
-if str(ROOT_DIR / "src") not in sys.path:
-    sys.path.insert(0, str(ROOT_DIR / "src"))
-
-import version
-from version import get_canonical_version
+from finance_mosaix.core import version
+from finance_mosaix.core.version import get_canonical_version
 
 
 def normalize_electron_package_version(version: str) -> str:

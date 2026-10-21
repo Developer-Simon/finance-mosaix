@@ -1,148 +1,75 @@
 # Finance Mosaix Electron App
 
-This note covers the Electron desktop wrapper and the packaged Python runtime used by
-Finance Mosaix.
+This note covers the Electron desktop shell and the bundled Python runtime used by
+Finance Mosaix. Commands and the variants are described in `electron/README.md`.
 
 ## Electron app overview
 
-The `electron/` directory contains the desktop wrapper that launches the Streamlit
-dashboard from `dashboard/app.py` inside a native Electron window.
+The `electron/` directory contains the desktop shell. It starts the Streamlit dashboard
+from `src/finance_mosaix/dashboard/app.py` on a free local port and shows it in an
+Electron window. The shell is split into modules under `electron/src/`:
 
-### Local development
+- `resolve-runtime.js`: picks the Python interpreter (see below)
+- `python-locator.js`, `venv-manager.js`: system Python and the managed venv
+- `server-process.js`: starts, health-checks and stops the Streamlit process
+- `legacy-notice.js`, `smoke.js`, `chrome.js`, `i18n.js`: legacy data notice, `--smoke`
+  check, window chrome and texts
 
-1. Open a terminal at the project root.
-2. Install Node dependencies inside `electron/`:
+## Packaged Python runtime
 
-```bash
-cd electron
-npm install
-```
+The full variant ships a relocatable CPython built by
+[python-build-standalone](https://github.com/astral-sh/python-build-standalone). The
+slim variant has no interpreter and uses a system Python.
 
-3. Start the Electron app:
+### How the runtime is built
 
-```bash
-npm start
-```
+`npm run build:runtime` (in `electron/`) runs `runtime/build-runtime.js`:
 
-The app launches the Streamlit dashboard and embeds it in a desktop window.
+1. The archive for the current platform is read from `runtime/runtime.lock.json`
+   (release, Python version, asset name and SHA-256 per target). It is downloaded to
+   `build/cache/` if it is not cached yet.
+2. The SHA-256 sum is checked, both for a cached archive and for a new download. A
+   cached archive with a wrong sum is deleted and downloaded again.
+3. The archive is unpacked into `build/python/`. On Windows the script uses the
+   system `tar.exe`, because the GNU tar of Git Bash reads `D:\...` as a remote host.
+4. `build/requirements.txt` is installed into the runtime with `pip`. The environment
+   variables `PYTHONNOUSERSITE=1` and the `PYTHONPATH` and `PYTHONHOME` variables are
+   removed for this step, so the build does not depend on the user's Python.
+5. An import check runs for streamlit, duckdb, pandas, numpy, openpyxl, altair,
+   matplotlib and seaborn.
 
-### Packaging
+`build/requirements.txt` comes from `scripts/write_requirements.py` through
+`npm run build:requirements`.
 
-From the `electron/` directory:
+The packaged app finds the runtime at `<resources>/python/bin/python3` (Windows:
+`python.exe`). Packaging copies `electron/build/python/` there (`electron-builder.full.yml`).
 
-```bash
-npm run dist
-```
+### Updating the Python version
 
-The build is configured for Windows with `nsis` and includes the project files
-required to launch the dashboard.
-
-### Icon regeneration
-
-If the packaged icon needs to be rebuilt from the SVG source, run:
-
-```bash
-npm run generate-icon
-```
-
-This generates `docs/img/favicon.ico` from `docs/img/favicon.svg` at 256x256.
-
-### Notes
-
-- The Electron wrapper looks for Python either from the host environment or via the
-  `PYTHON_EXECUTABLE` environment variable.
-- For a bundled runtime, use:
-
-```bash
-npm run build-runtime
-```
-
-- `npm run dist` now builds the embedded Python runtime automatically before packaging.
-- Generated Electron folder artifacts include `python-runtime/`, `dist/`, and `build_log.txt`.
-- To clean the Electron folder before a fresh build, remove `electron/node_modules/`,
-  `electron/python-runtime/`, `electron/dist/`, and `electron/build_log.txt`.
-- `electron/build_python_runtime.py` is the canonical runtime builder; the shell script
-  `electron/build-python-runtime.sh` may be removed if you want a smaller folder.
-
-## Electron Packaged Python Runtime
-
-The Electron desktop wrapper (`electron/`) bundles a private Python runtime so the
-Streamlit dashboard can run on a machine without a system-wide Python install. This
-runtime is built by [`electron/build_python_runtime.py`](../electron/build_python_runtime.py)
-into `electron/python-runtime` (gitignored, regenerated locally and in CI — never
-committed).
-
-### Why the previous runtime approach broke
-
-The original script created the runtime with a plain `venv.EnvBuilder`, then rewrote
-`pyvenv.cfg` to try to make it relocatable, and installed the project with
-`pip install -e .`.
-
-This was broken for two independent reasons:
-
-1. **A stock Windows venv is not self-contained.** `Scripts/python.exe` is only a thin
-   stub — it has no interpreter DLL or standard library of its own. It relies entirely
-   on `pyvenv.cfg`'s `home = ...` value to locate the *original* base Python
-   installation's DLL and stdlib. The old script rewrote `home` to point at the venv's
-   own `Scripts` folder, which doesn't contain the stdlib/DLLs either — so
-   `python.exe` could no longer initialize. In practice this showed up as `python.exe`
-   hanging or exiting immediately without useful output whenever Electron tried to
-   launch Streamlit.
-2. **Editable installs aren't relocatable.** `pip install -e ROOT` writes a path finder
-   pointing at the absolute dev checkout path. That path doesn't exist once the runtime
-   is packaged and moved to another machine.
-
-Even without those bugs, a regular venv is always tied to whatever base Python produced
-it — it can never be a truly portable, drop-in runtime for an end user's machine.
-
-### Current approach
-
-On Windows, `build_python_runtime.py` now:
-
-1. Downloads the official **embeddable CPython distribution**
-   (`python.org/ftp/python/<version>/python-<version>-embed-amd64.zip`), which ships
-   its own interpreter DLL and standard library — no dependency on any Python
-   installation on the build machine or the end user's machine.
-2. Enables `site-packages` support by editing the shipped `python311._pth` file
-   (uncommenting `import site` and adding `Lib\site-packages`).
-3. Bootstraps `pip` via `get-pip.py`.
-4. Installs the project with a normal (non-editable) `pip install ROOT` so the package
-   files are copied into the runtime's own `site-packages`, not linked back to the dev
-   checkout.
-
-The result is a fully self-contained `python-runtime` folder: no external Python
-dependency, and no absolute paths back to the build machine. It is genuinely
-relocatable, which is what the packaged Electron installer (built by
-`npm run dist` / `.github/workflows/electron-package.yml`) requires to work on a fresh
-system.
-
-`python.exe` now lives directly at `python-runtime/python.exe` (embeddable layout)
-rather than `python-runtime/Scripts/python.exe` (venv layout). `electron/main.js`'s
-`getPythonExecutable()` checks the new location first and falls back to the old
-`Scripts/python.exe` path for backward compatibility with any previously built runtime.
-
-For non-Windows platforms (no official embeddable distribution exists), the script
-falls back to a plain venv via `build_posix_venv_runtime()` — this still requires a
-compatible system Python to be present at runtime and is not fully self-contained.
+Change `release`, `python` and the `asset` and `sha256` values of each target in
+`runtime/runtime.lock.json`. Each target needs its own SHA-256 sum. Then run
+`npm run build:runtime` on each platform that is packaged.
 
 ### Repairing a broken runtime
 
-If the packaged app's `python.exe` hangs or fails to start (e.g. after moving the app,
-or after `pyvenv.cfg` corruption from an older build), rebuild the runtime from
-scratch:
+If the bundled interpreter fails to start or the dashboard does not import its
+dependencies, delete `electron/build/python/` and run `npm run build:runtime` again.
 
-```powershell
-cd electron
-Remove-Item -Recurse -Force python-runtime
-python build_python_runtime.py
-npm start
-```
+For the system Python variant, use Tools → Reinstall Python environment in the app, or
+delete the `venv/` folder in the data folder. The next start recreates it.
 
-## Electron Version Resolution In CI
+### Interpreter order at runtime
+
+`src/resolve-runtime.js` checks, in this order: `FINANCE_MOSAIX_PYTHON`, the development
+venv `.venv` (not packaged), the bundled runtime, then the system Python with the managed
+venv in the user data folder. The order is also described in `electron/README.md`.
+
+## Electron version resolution in CI
 
 ### Symptom
 
-During `npm run dist`, the version sync step (`electron/sync_version.js`) can report:
+When the version sync step (`electron/sync_version.js`, `npm run sync-version`) runs
+without a tag, it can report:
 
 - `Electron package version updated -> 0.0.0`
 
@@ -150,7 +77,7 @@ This causes Electron package metadata to regress to a placeholder version.
 
 ### Root cause pattern
 
-`electron/sync_version.js` asks Python for `src.version.get_canonical_version()`.
+`electron/sync_version.js` asks Python for `finance_mosaix.core.version.get_canonical_version()`.
 If `setuptools_scm` is not available in the Python environment used by the workflow,
 SCM-based version resolution may fail and fallback selection becomes critical.
 
@@ -160,12 +87,13 @@ Electron version.
 
 ### Guardrails implemented
 
-1. `src/version.py` now treats installed metadata version `0.0.0` as a placeholder
+1. `finance_mosaix/core/version.py` treats installed metadata version `0.0.0` as a placeholder
    and ignores it.
-2. `src/version.py` now reads `[tool.setuptools_scm].fallback_version` from
+2. `finance_mosaix/core/version.py` reads `[tool.setuptools_scm].fallback_version` from
    `pyproject.toml` and uses it before installed package metadata.
-3. `.github/workflows/electron-package.yml` now installs `setuptools_scm` in both
-   Windows and Linux packaging jobs.
+3. In `.github/workflows/electron.yml` a release build takes the version from the tag
+   (`npm version`, `electron/VERSION`). Other runs call `npm run sync-version` after
+   `actions/checkout` with `fetch-depth: 0`.
 4. `test/test_version_sync.py` includes regression tests for this exact fallback
    scenario.
 
@@ -183,6 +111,7 @@ Electron version.
 ### CI checklist for future changes
 
 - Keep `actions/checkout` with `fetch-depth: 0` so tags/history are available.
-- Ensure `setuptools_scm` is installed before `npm run dist`.
+- Make sure the Python used by `npm run sync-version` can resolve the version in the
+  workflow (`.github/workflows/electron.yml`).
 - If versioning behavior changes, run `pytest test/test_version_sync.py -q`.
 - Do not rely on installed package metadata alone for canonical versioning.

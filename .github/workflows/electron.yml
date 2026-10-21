@@ -1,0 +1,179 @@
+# Electron app: tests, installers for all platforms with smoke tests, and the GitHub release.
+# On push/PR only the tests run. Installers are built when started by hand (workflow_dispatch,
+# uploaded as workflow artifacts) or when release-please.yml calls it with a release tag.
+name: Electron
+
+on:
+  pull_request:
+    paths:
+      - 'electron/**'
+      - 'src/**'
+      - 'pyproject.toml'
+      - '.github/workflows/electron.yml'
+  push:
+    branches:
+      - master
+    paths:
+      - 'electron/**'
+      - 'src/**'
+      - 'pyproject.toml'
+      - '.github/workflows/electron.yml'
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      tag:
+        type: string
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Python tests
+        run: |
+          python -m pip install '.[test]'
+          pytest
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: electron/package-lock.json
+      - name: Electron tests
+        working-directory: electron
+        run: |
+          npm ci
+          npm test
+
+  build:
+    needs: test
+    # In a called workflow github.event_name is the caller's event, so the release is recognised by its tag.
+    if: github.event_name == 'workflow_dispatch' || inputs.tag != ''
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest   # AppImage + Flatpak (full), AppImage (slim), x64
+          - macos-latest    # dmg, arm64
+          - macos-15-intel  # dmg, x64
+          - windows-latest  # NSIS installer, x64
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+        working-directory: electron
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # setuptools_scm derives the version from git tags
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13' # write_requirements.py and sync-version
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: electron/package-lock.json
+
+      - name: Version
+        env:
+          TAG: ${{ inputs.tag }}
+        run: |
+          if [ -n "$TAG" ]; then
+            npm version "${TAG#v}" --no-git-tag-version --allow-same-version
+            echo "${TAG#v}" > VERSION
+          else
+            python -m pip install setuptools_scm
+            npm run sync-version
+          fi
+
+      - run: npm ci
+      - name: Bundled Python runtime
+        run: npm run build:runtime
+
+      - name: Flatpak tooling
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update -q && sudo apt-get install -yq flatpak flatpak-builder
+          flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+          flatpak install --user -y --noninteractive flathub \
+            org.freedesktop.Platform//26.08 org.freedesktop.Sdk//26.08 org.electronjs.Electron2.BaseApp//26.08
+
+      - name: Installers
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: "false" # no code signing yet
+        run: |
+          npm run dist:full
+          npm run dist:slim
+
+      - name: Smoke test full without Python in PATH (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get install -yq xvfb
+          xvfb-run -a bash -c 'env -i HOME="$HOME" DISPLAY="$DISPLAY" XAUTHORITY="$XAUTHORITY" dist/full/linux-unpacked/finance-mosaix --smoke --no-sandbox'
+
+      - name: Smoke test full without Python in PATH (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          app=$(compgen -G 'dist/full/mac*/Finance Mosaix.app' | head -n 1)
+          [ -n "$app" ] || { echo "Finance Mosaix.app not found"; exit 1; }
+          env -i HOME="$HOME" "$app/Contents/MacOS/Finance Mosaix" --smoke
+
+      - name: Smoke test full without Python in PATH (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          env -i SYSTEMROOT="$SYSTEMROOT" "dist/full/win-unpacked/Finance Mosaix.exe" --smoke
+
+      - name: Smoke test slim with the runner's Python (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          xvfb-run -a dist/slim/linux-unpacked/finance-mosaix --smoke --no-sandbox
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: installer-${{ matrix.os }}
+          if-no-files-found: error
+          path: |
+            electron/dist/full/*-full.AppImage
+            electron/dist/full/*-full.flatpak
+            electron/dist/full/*-full.dmg
+            electron/dist/full/*-full.exe
+            electron/dist/slim/*-slim.AppImage
+            electron/dist/slim/*-slim.dmg
+            electron/dist/slim/*-slim.exe
+
+  release:
+    if: inputs.tag != ''
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write     # Sigstore certificate for the attestation
+      attestations: write
+    env:
+      TAG: ${{ inputs.tag }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: installers
+          merge-multiple: true
+      - name: Checksums
+        run: cd installers && sha256sum * > SHA256SUMS.txt
+      - uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: installers/*
+      - name: GitHub release
+        # release-please creates the release first, so this only uploads the files.
+        run: |
+          cd installers
+          gh release upload "$TAG" --repo "$GITHUB_REPOSITORY" --clobber *

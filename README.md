@@ -1,5 +1,7 @@
 # Finance mosaix
 
+<img src="electron/assets/icon.png" alt="Finance mosaix icon" width="100" align="right">
+
 [![Python Tests](https://github.com/Developer-Simon/finance-mosaix/actions/workflows/pytest.yml/badge.svg)](https://github.com/Developer-Simon/finance-mosaix/actions/workflows/pytest.yml)
 [![Build package](https://github.com/Developer-Simon/finance-mosaix/actions/workflows/package.yml/badge.svg)](https://github.com/Developer-Simon/finance-mosaix/actions/workflows/package.yml)
 [![Publish docs](https://github.com/Developer-Simon/finance-mosaix/actions/workflows/pages.yml/badge.svg)](https://github.com/Developer-Simon/finance-mosaix/actions/workflows/pages.yml)
@@ -15,8 +17,8 @@ Finance mosaix is a DuckDB-based personal finance application for importing Exce
 
 ## What it includes
 
-- `src/`: core finance logic, database schema, import and query helpers
-- `dashboard/`: Streamlit dashboard UI, charts, and data views
+- `src/finance_mosaix/core/`: core finance logic, database schema, migrations, import and query helpers, CLI
+- `src/finance_mosaix/dashboard/`: Streamlit dashboard UI, charts, and data views
 - `test/`: automated tests for import logic and queries
 - `docs/`: project-specific documentation and usage guides
 - `CONTRIBUTING.md`: contribution guidelines
@@ -35,9 +37,18 @@ Finance mosaix is named for the way it brings many finance data pieces together 
 
 ## Quick start
 
-1. Create a Python virtual environment in the project root:
+1. Create a Python virtual environment in the project root.
+
+Linux/macOS:
 
 ```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+Windows:
+
+```powershell
 python -m venv .venv
 .\.venv\Scripts\activate
 ```
@@ -46,16 +57,16 @@ python -m venv .venv
 
 ```bash
 python -m pip install --upgrade pip
-python -m pip install .
+python -m pip install -e .
 ```
 
 3. Generate a sample database with realistic data:
 
 ```bash
-python create_sample_database.py
+python -m finance_mosaix.dashboard.create_sample_database
 ```
 
-This creates `finance_sample.duckdb` in the current project directory.
+This creates `finance_sample.duckdb` in the project root.
 
 4. Start the dashboard:
 
@@ -79,14 +90,14 @@ This dataset is suitable for taking a dashboard screenshot or exploring the app 
 
 ## Command-line usage
 
-From the project root:
+After `pip install -e .` the `finance-mosaix` console script is available:
 
 ```bash
-python src/finance_cli.py --init
-python src/finance_cli.py --import path/to/file.xlsx
-python src/finance_cli.py --balance
-python src/finance_cli.py --spending 30
-python src/finance_cli.py --search "rent"
+finance-mosaix --init
+finance-mosaix --import path/to/file.xlsx
+finance-mosaix --balance
+finance-mosaix --spending 30
+finance-mosaix --search "rent"
 ```
 
 ## Docs

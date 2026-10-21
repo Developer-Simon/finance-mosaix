@@ -1,16 +1,11 @@
 import contextlib
 import io
-import sys
 import unittest
 from datetime import date
-from pathlib import Path
 
 import pandas as pd
 
-ROOT_DIR = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT_DIR))
-
-from src.import_transactions import FinanceImporter
+from finance_mosaix.core.import_transactions import FinanceImporter
 from .test_helpers import sample_excel_path
 
 SAMPLE_FILES = [

@@ -9,9 +9,9 @@ tags: [architecture, design, duckdb]
 
 Finance mosaix is structured around a shared DuckDB backend that is used by:
 
-- a CLI surface (`src/finance_cli.py`)
-- a Streamlit dashboard surface (`dashboard/app.py`)
-- shared query and import helpers in `src/`
+- a CLI surface (`finance_mosaix/core/finance_cli.py`)
+- a Streamlit dashboard surface (`finance_mosaix/dashboard/app.py`)
+- shared query and import helpers in `finance_mosaix/core/`
 
 The project root is `finance-mosaix/`.
 
@@ -19,8 +19,8 @@ The project root is `finance-mosaix/`.
 
 ```mermaid
 graph TD
-    CLI["CLI<br/>src/finance_cli.py"]
-    Dashboard["Streamlit Dashboard<br/>dashboard/"]
+    CLI["CLI<br/>finance_mosaix/core/finance_cli.py"]
+    Dashboard["Streamlit Dashboard<br/>finance_mosaix/dashboard/"]
     Importer["Importer<br/>import_transactions.py"]
     QFinance["Query Layer<br/>query_finance.py + pool queries"]
     Schema["Schema & Migration<br/>db_schema.py / db_migrate.py"]
@@ -38,14 +38,14 @@ graph TD
 
 ## Project Layout
 
-- `src/`: database schema, migrations, importer, query layer, and CLI entry point
-- `dashboard/`: Streamlit pages, charts, metrics, and data maintenance views
+- `finance_mosaix/core/`: database schema, migrations, importer, query layer, and CLI entry point
+- `finance_mosaix/dashboard/`: Streamlit pages, charts, metrics, and data maintenance views
 - `test/`: pytest suite for schema, importer behavior, and query outputs
-- `knowledge/`: deep technical notes for migration history, schema decisions, and chart coverage
+- `.github/knowledge/`: deep technical notes for migration history, schema decisions, and chart coverage
 
-## Core API Reference (`src/`)
+## Core API Reference (`finance_mosaix/core/`)
 
-### `src/db_schema.py`
+### `finance_mosaix/core/db_schema.py`
 
 Purpose: initialize and access the DuckDB schema and apply migrations when needed.
 
@@ -55,7 +55,7 @@ Public API:
 - `get_connection(db_path="finance.duckdb", force_migration=False)`: returns a migration-aware DB connection proxy.
 - `show_schema(db_path="finance.duckdb")`: prints tables and columns for schema inspection.
 
-### `src/db_migrate.py`
+### `finance_mosaix/core/db_migrate.py`
 
 Purpose: manage schema version metadata and migrate older databases to the current format.
 
@@ -66,7 +66,7 @@ Public API:
 - `set_db_version(conn, version)`: writes the database schema version.
 - `migrate_database(conn, db_path)`: performs end-to-end migration to `CURRENT_DB_VERSION`.
 
-### `src/finance_cli.py`
+### `finance_mosaix/core/finance_cli.py`
 
 Purpose: command-line entry point for initialization, import, inspection, and normalization tasks.
 
@@ -74,14 +74,14 @@ Public API:
 - `default_db_path()`: returns the default DB location in the project root.
 - `main()`: argparse-based CLI handler (`--init`, `--import`, `--balance`, `--spending`, `--search`, `--schema`, `--normalize`, `--db`, related options).
 
-### `src/import_transactions.py`
+### `finance_mosaix/core/import_transactions.py`
 
 Purpose: parse Excel sheets and import normalized records into pool-specific tables.
 
 Public API:
 - `FinanceImporter`: main importer class for sheet loading, parsing, account/category mapping, and database writes.
 
-### `src/query_finance.py`
+### `finance_mosaix/core/query_finance.py`
 
 Purpose: aggregate facade that delegates to pool-specific query classes.
 
@@ -92,7 +92,7 @@ Public API:
 - `print_balance_summary()`: terminal helper for account balance summaries.
 - `print_category_summary(days=30)`: terminal helper for spending category summaries.
 
-### `src/account_balance_queries.py`
+### `finance_mosaix/core/account_balance_queries.py`
 
 Purpose: account balance snapshot reads/writes, reconciliation, and generated snapshot support.
 
@@ -100,7 +100,7 @@ Public API:
 - `default_db_path()`: returns the default DB location.
 - `AccountBalanceQueries`: pool-specific query class for account balances.
 
-### `src/cash_queries.py`
+### `finance_mosaix/core/cash_queries.py`
 
 Purpose: cash transaction, account, category, and merge operations.
 
@@ -108,7 +108,7 @@ Public API:
 - `default_db_path()`: returns the default DB location.
 - `CashQueries`: pool-specific query class for cash data.
 
-### `src/stock_queries.py`
+### `finance_mosaix/core/stock_queries.py`
 
 Purpose: stock position snapshots, merge workflows, and historical views.
 
@@ -116,7 +116,7 @@ Public API:
 - `default_db_path()`: returns the default DB location.
 - `StockQueries`: pool-specific query class for stock data.
 
-### `src/interest_queries.py`
+### `finance_mosaix/core/interest_queries.py`
 
 Purpose: interest balance change history and consolidation helpers.
 
@@ -124,7 +124,7 @@ Public API:
 - `default_db_path()`: returns the default DB location.
 - `InterestQueries`: pool-specific query class for interest data.
 
-### `src/goods_queries.py`
+### `finance_mosaix/core/goods_queries.py`
 
 Purpose: goods valuations, merge operations, and normalization support.
 
@@ -132,30 +132,30 @@ Public API:
 - `default_db_path()`: returns the default DB location.
 - `GoodsQueries`: pool-specific query class for goods valuation data.
 
-### `src/goods_depreciation.py`
+### `finance_mosaix/core/goods_depreciation.py`
 
 Purpose: calculate derived goods values from depreciation rules.
 
 Public API:
 - `calculate_goods_current_value(purchase_value, depreciation_input, previous_value, months_diff)`: computes normalized goods current value.
 
-## Dashboard Modules (`dashboard/`)
+## Dashboard Modules (`finance_mosaix/dashboard/`)
 
-`dashboard/` provides the interactive Streamlit application surface:
+`finance_mosaix/dashboard/` provides the interactive Streamlit application surface:
 
-- `dashboard/app.py`: app shell, navigation, and page rendering orchestration.
-- `dashboard/charts.py`: Plotly chart builders used by the Charts page.
-- `dashboard/charts_pyplot.py`: Matplotlib-based chart helpers (legacy/alternate plotting paths).
-- `dashboard/metrics.py`: metric-card and summary rendering helpers.
-- `dashboard/data.py`: shared data loading and transformation helpers for pages.
-- `dashboard/import.py`: Excel import page and import workflow UI.
-- `dashboard/onboarding.py`: first-run and connection setup flow.
-- `dashboard/settings.py`: dashboard settings and persistence helpers.
-- `dashboard/sheets.py`: sheet/table rendering and tabular helper utilities.
-- `dashboard/data_creator.py`: create and seed data workflows.
-- `dashboard/data_editor.py`: direct data editing workflows.
-- `dashboard/data_organizer.py`: normalization, merge, and cleanup workflows.
-- `dashboard/create_sample_database.py`: sample/demo data generator used by onboarding/demo mode.
+- `finance_mosaix/dashboard/app.py`: app shell, navigation, and page rendering orchestration.
+- `finance_mosaix/dashboard/charts.py`: Plotly chart builders used by the Charts page.
+- `finance_mosaix/dashboard/charts_pyplot.py`: Matplotlib-based chart helpers (legacy/alternate plotting paths).
+- `finance_mosaix/dashboard/metrics.py`: metric-card and summary rendering helpers.
+- `finance_mosaix/dashboard/data.py`: shared data loading and transformation helpers for pages.
+- `finance_mosaix/dashboard/import_view.py`: Excel import page and import workflow UI.
+- `finance_mosaix/dashboard/onboarding.py`: first-run and connection setup flow.
+- `finance_mosaix/dashboard/settings.py`: dashboard settings and persistence helpers.
+- `finance_mosaix/dashboard/sheets.py`: sheet/table rendering and tabular helper utilities.
+- `finance_mosaix/dashboard/data_creator.py`: create and seed data workflows.
+- `finance_mosaix/dashboard/data_editor.py`: direct data editing workflows.
+- `finance_mosaix/dashboard/data_organizer.py`: normalization, merge, and cleanup workflows.
+- `finance_mosaix/dashboard/create_sample_database.py`: sample/demo data generator used by onboarding/demo mode.
 
 For page-by-page behavior and screenshots, see [Dashboard](dashboard.md).
 
@@ -178,6 +178,6 @@ Data is immediately shared between both surfaces because they use the same backe
 
 For implementation rationale and historical context, see:
 
-- `knowledge/DataBaseSetup.md`
-- `knowledge/DataBaseMigrationKnowledge.md`
-- `knowledge/DashboardChartsNMetrics.md`
+- `.github/knowledge/DataBaseSetup.md`
+- `.github/knowledge/DataBaseMigrationKnowledge.md`
+- `.github/knowledge/DashboardChartsNMetrics.md`
