@@ -41,7 +41,9 @@ function runtimeOptions() {
   return {
     isPackaged: app.isPackaged,
     appRoot: getAppRoot(),
-    bundledDir: path.join(process.resourcesPath, 'python'),
+    bundledDir: app.isPackaged
+      ? path.join(process.resourcesPath, 'python')
+      : path.join(__dirname, '..', 'build', 'python'),
     userDataDir: app.getPath('userData'),
     requirementsPath: getRequirementsPath(),
     appVersion: app.getVersion(),
@@ -74,6 +76,7 @@ function applyChromeColors() {
       // No overlay on this platform/version; the bar then keeps its colours.
     }
   }
+  if (mainView && !mainView.webContents.isDestroyed()) mainView.setBackgroundColor(contentBackground(dark));
 }
 
 /** @type {BrowserWindow | null} */
@@ -219,6 +222,15 @@ async function stopServer() {
   const current = server;
   server = null;
   if (current) await current.stop();
+}
+
+/** stopServer for exit paths: logs errors instead of throwing. */
+async function stopServerQuietly() {
+  try {
+    await stopServer();
+  } catch (err) {
+    console.error('Could not stop the server:', err);
+  }
 }
 
 /**
@@ -409,7 +421,8 @@ async function run() {
   } catch (err) {
     if (SMOKE) {
       console.error(describeError(err));
-      // app.exit skips before-quit; server is still null here, so there is nothing to stop.
+      // app.exit skips before-quit, so a server started before the error is stopped explicitly.
+      await stopServerQuietly();
       app.exit(1);
       return;
     }
@@ -417,7 +430,8 @@ async function run() {
     // No error dialog while quitting; onBeforeQuit quits the app anyway.
     if (quitting) return;
     dialog.showErrorBox(t('electron.dialog.start_failed'), describeError(err));
-    // app.exit skips before-quit; server is still null here, so there is nothing to stop.
+    // app.exit skips before-quit, so a server started before the error is stopped explicitly.
+    await stopServerQuietly();
     app.exit(1);
   }
 }
