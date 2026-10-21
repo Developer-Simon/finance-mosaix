@@ -15,12 +15,27 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: google-github-actions/release-please-action@v3
+      - id: release
+        uses: googleapis/release-please-action@v4
         with:
           release-type: python
-          package-name: finance-mosaix
           token: ${{ secrets.GITHUB_TOKEN }}
+
+  # Tags created with GITHUB_TOKEN do not trigger other workflows, so the installers are built here.
+  electron:
+    needs: release
+    if: needs.release.outputs.release_created == 'true'
+    uses: ./.github/workflows/electron.yml
+    with:
+      tag: ${{ needs.release.outputs.tag_name }}
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
