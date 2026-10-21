@@ -17,20 +17,21 @@ classifiers = [
   "Intended Audience :: Developers",
   "Topic :: Office/Business :: Financial",
   "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.13",
   "Environment :: Console",
   "Framework :: Streamlit",
 ]
 urls = { Homepage = "https://github.com/Developer-Simon/finance-mosaix", Repository = "https://github.com/Developer-Simon/finance-mosaix", Documentation = "https://github.com/Developer-Simon/finance-mosaix/tree/master/docs", "Bug Tracker" = "https://github.com/Developer-Simon/finance-mosaix/issues" }
 
 dependencies = [
-  "pandas>=2.0,<3.0",
+  "pandas>=2.0,<4.0",
   "openpyxl>=3.1,<4.0",
   "duckdb>=1.0,<2.0",
   "streamlit>=1.20,<2.0",
   "altair>=5.0,<6.0",
   "matplotlib>=3.7,<4.0",
   "seaborn>=0.12,<1.0",
-  "numpy>=1.25,<2.0",
+  "numpy>=1.25,<3",
 ]
 
 optional-dependencies = { test = ["pytest>=7.0,<9.0"], dev = ["pytest>=7.0,<9.0", "setuptools_scm>=7.1"], docs = [] }
