@@ -26,6 +26,7 @@
   "electron.dialog.legacy_body": "Eine frühere Windows-Version hat deine Datenbank hier abgelegt:\n{dbPath}\n\nDiese Version verwendet einen anderen Ordner:\n{userData}\n\nUm deine Daten zu behalten, kopiere finance.duckdb in diesen Ordner.",
   "electron.dialog.open_folder": "Datei anzeigen",
   "electron.dialog.ok": "OK",
+  "electron.menu.reload": "Neu laden",
   "electron.menu.tools": "Werkzeuge",
   "electron.menu.reinstall_python": "Python-Umgebung neu installieren",
   "electron.menu.open_data_folder": "Datenordner öffnen"

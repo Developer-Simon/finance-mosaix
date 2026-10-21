@@ -26,6 +26,7 @@
   "electron.dialog.legacy_body": "An earlier Windows version stored your database at:\n{dbPath}\n\nThis version uses a different folder:\n{userData}\n\nTo keep your data, copy finance.duckdb into that folder.",
   "electron.dialog.open_folder": "Show file",
   "electron.dialog.ok": "OK",
+  "electron.menu.reload": "Reload",
   "electron.menu.tools": "Tools",
   "electron.menu.reinstall_python": "Reinstall Python environment",
   "electron.menu.open_data_folder": "Open data folder"
