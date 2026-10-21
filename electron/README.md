@@ -87,7 +87,7 @@ On macOS and Windows the CI runs the packaged executable with `--smoke` in a cle
 
 ## Releases (CI)
 
-The workflow `.github/workflows/electron.yml` builds the installers. It runs on pushes to `master` that touch `electron/`, `src/` or `pyproject.toml`, on pull requests with the same paths, and on manual runs. These runs only upload workflow artifacts.
+The workflow `.github/workflows/electron.yml` builds the installers. On pushes to `master` and pull requests that touch `electron/`, `src/` or `pyproject.toml` it only runs the tests. Installers are built on manual runs (Actions → Electron → Run workflow), which upload them as workflow artifacts, and for releases.
 
 Releases come from `.github/workflows/release-please.yml`. On a push to `master` release-please updates its release pull request. When a release is created, the workflow calls `electron.yml` with the new tag, which then:
 

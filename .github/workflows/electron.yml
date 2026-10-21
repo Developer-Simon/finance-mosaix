@@ -1,5 +1,6 @@
 # Electron app: tests, installers for all platforms with smoke tests, and the GitHub release.
-# Called by release-please.yml with a tag; on push/PR it only builds and uploads workflow artifacts.
+# On push/PR only the tests run. Installers are built when started by hand (workflow_dispatch,
+# uploaded as workflow artifacts) or when release-please.yml calls it with a release tag.
 name: Electron
 
 on:
@@ -55,6 +56,8 @@ jobs:
 
   build:
     needs: test
+    # In a called workflow github.event_name is the caller's event, so the release is recognised by its tag.
+    if: github.event_name == 'workflow_dispatch' || inputs.tag != ''
     strategy:
       fail-fast: false
       matrix:
