@@ -15,7 +15,8 @@ It needs `fontTools` (installed with the dashboard dependencies) and ImageMagick
 | `src/finance_mosaix/dashboard/assets/logo-{light,dark,mark}.svg` | Streamlit sidebar logo and page icon |
 | `electron/assets/logo.svg` | Electron title bar (wordmark in `currentColor`) |
 | `electron/assets/icon.svg`, `icon.png`, `icons/*.png` | App icons for electron-builder |
-| `docs/img/favicon.{svg,ico}`, `docs/img/logo.svg` | Docs favicon and sidebar avatar |
+| `docs/assets/img/favicons/*` | Docs favicons and web app icons (Chirpy theme) |
+| `docs/img/logo.svg` | Docs sidebar avatar |
 
 Colours: tiles `#4F46E5`, `#6366F1`, `#818CF8`; wedge `#EC4899`.
 

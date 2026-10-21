@@ -5,6 +5,7 @@ Needs fontTools (Python) and ImageMagick with SVG support (magick) for the PNG/I
 """
 import shutil
 import subprocess
+import tempfile
 from pathlib import Path
 
 from fontTools.pens.svgPathPen import SVGPathPen
@@ -17,6 +18,7 @@ FONT = ROOT / "branding" / "fonts" / "Sora[wght].ttf"
 DASHBOARD = ROOT / "src" / "finance_mosaix" / "dashboard" / "assets"
 ELECTRON = ROOT / "electron" / "assets"
 DOCS = ROOT / "docs" / "img"
+FAVICONS = ROOT / "docs" / "assets" / "img" / "favicons"  # where the Chirpy theme looks for them
 
 # Mosaik-M on a 64 unit grid: two legs of three tiles and a wedge in the middle.
 MARK = """<rect x="4" y="4" width="16" height="16" rx="2" fill="#4F46E5"/>
@@ -65,7 +67,7 @@ def lockup(ink):
 
 def rasterize(source, target, size, *extra):
     subprocess.run(["magick", "-background", "none", "-density", "1200", str(source),
-                    "-resize", f"{size}x{size}", "-depth", "8", *extra, str(target)], check=True)
+                    "-resize", f"{size}x{size}", "-depth", "8", "-strip", *extra, str(target)], check=True)
 
 
 def main():
@@ -76,7 +78,7 @@ def main():
         DASHBOARD / "logo-dark.svg": lockup(DARK_INK),
         ELECTRON / "icon.svg": mark,
         ELECTRON / "logo.svg": lockup("currentColor"),  # title bar, inherits the bar colour
-        DOCS / "favicon.svg": mark,
+        FAVICONS / "favicon.svg": mark,
         # The docs avatar is cropped to a circle; the margin keeps the tile corners inside it.
         DOCS / "logo.svg": svg("-12 -12 88 88", MARK),
     }
@@ -92,8 +94,17 @@ def main():
     rasterize(icon, ELECTRON / "icon.png", 512)
     for size in ICON_SIZES:
         rasterize(icon, ELECTRON / "icons" / f"{size}x{size}.png", size)
-    rasterize(icon, DOCS / "favicon.ico", 256, "-define", "icon:auto-resize=48,32,16")
-    print("wrote PNG icons and favicon.ico")
+    rasterize(icon, FAVICONS / "favicon-96x96.png", 96)
+    rasterize(icon, FAVICONS / "favicon.ico", 256, "-define", "icon:auto-resize=48,32,16")
+    # Home screen icons need an opaque background; the margin keeps the mark inside
+    # the safe zone of a maskable icon (a circle of 80 % of the size).
+    with tempfile.TemporaryDirectory() as tmp:
+        tile = Path(tmp) / "tile.svg"
+        tile.write_text(svg("-18 -18 100 100", f'<rect x="-18" y="-18" width="100" height="100" fill="#FFFFFF"/>\n{MARK}'))
+        rasterize(tile, FAVICONS / "apple-touch-icon.png", 180)
+        for size in (192, 512):
+            rasterize(tile, FAVICONS / f"web-app-manifest-{size}x{size}.png", size)
+    print("wrote PNG icons and favicons")
 
 
 if __name__ == "__main__":

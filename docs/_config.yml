@@ -15,7 +15,6 @@ social:
 
 theme: jekyll-theme-chirpy
 tagline: "DuckDB-backed personal finance tracker documentation"
-favicon: "/img/favicon.ico"
 avatar: "/img/logo.svg"
 tabs:
   - title: "Installation"
