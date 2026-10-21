@@ -9,11 +9,8 @@ from pathlib import Path
 
 from finance_mosaix.core.db_schema import init_database, show_schema, get_connection
 from finance_mosaix.core.import_transactions import FinanceImporter
+from finance_mosaix.core.paths import default_db_path
 from finance_mosaix.core.query_finance import print_balance_summary, print_category_summary, FinanceQueries
-
-
-def default_db_path() -> str:
-    return str(Path(__file__).resolve().parents[3] / "finance.duckdb")
 
 
 def main():
@@ -40,7 +37,7 @@ Examples:
     parser.add_argument('--item-name', help='Optional goods item name to limit normalization')
     parser.add_argument('--valuation-date', help='Optional goods valuation date to limit normalization (YYYY-MM-DD)')
     parser.add_argument('--what-if', action='store_true', help='Preview normalization without writing changes')
-    parser.add_argument('--db', default=default_db_path(), help='Database path (default: finance.duckdb)')
+    parser.add_argument('--db', default=str(default_db_path()), help='Database path (default: finance.duckdb)')
 
     args = parser.parse_args()
 

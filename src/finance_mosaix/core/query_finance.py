@@ -12,10 +12,7 @@ from finance_mosaix.core.interest_queries import InterestQueries
 from finance_mosaix.core.stock_queries import StockQueries
 from finance_mosaix.core.account_balance_queries import AccountBalanceQueries
 from finance_mosaix.core.db_schema import get_connection
-
-
-def default_db_path() -> str:
-    return str(Path(__file__).resolve().parents[3] / "finance.duckdb")
+from finance_mosaix.core.paths import default_db_path
 
 
 class FinanceQueries:
@@ -23,7 +20,7 @@ class FinanceQueries:
 
     def __init__(self, db_path: str | Path | None = None):
         if db_path is None:
-            db_path = default_db_path()
+            db_path = str(default_db_path())
 
         self.cash = CashQueries(db_path=db_path)
         self.stock = StockQueries(conn=self.cash.conn)

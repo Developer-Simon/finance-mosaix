@@ -1,9 +1,9 @@
-from pathlib import Path
 from datetime import date
 
 import duckdb
 
 from finance_mosaix.core.db_schema import init_database
+from finance_mosaix.core.paths import sample_db_path
 
 
 def seed_sample_data(conn: duckdb.DuckDBPyConnection) -> None:
@@ -85,7 +85,7 @@ def seed_sample_data(conn: duckdb.DuckDBPyConnection) -> None:
 
 
 def main() -> None:
-    db_path = Path(__file__).resolve().parents[3] / "finance_sample.duckdb"
+    db_path = sample_db_path()
     init_database(str(db_path))
     conn = duckdb.connect(str(db_path))
     seed_sample_data(conn)

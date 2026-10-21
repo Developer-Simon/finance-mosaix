@@ -13,7 +13,7 @@ _SRC_DIR = Path(__file__).resolve().parents[2]
 if str(_SRC_DIR) not in sys.path:
     sys.path.insert(0, str(_SRC_DIR))
 
-ROOT_DIR = Path(__file__).resolve().parents[3]
+from finance_mosaix.core.paths import resolve_db_path, sample_db_path
 
 from finance_mosaix.dashboard import charts_pyplot
 from finance_mosaix.dashboard.charts import (
@@ -79,7 +79,7 @@ st.set_page_config(
 settings = load_settings()
 base_db_path = settings.get("database", {}).get("database_path", "finance.duckdb")
 demo_mode = settings.get("database", {}).get("demo_mode", False)
-db_path = str((ROOT_DIR / (SAMPLE_DATABASE_PATH if demo_mode else base_db_path)).resolve())
+db_path = str(sample_db_path() if demo_mode else resolve_db_path(base_db_path))
 db_exists = Path(db_path).exists()
 
 if "onboarding_completed" not in st.session_state:
@@ -107,7 +107,7 @@ def get_cached_queries(db_path: str):
     return FinanceQueries(db_path)
 
 if not st.session_state["onboarding_completed"]:
-    render_onboarding_view(settings, ROOT_DIR)
+    render_onboarding_view(settings)
     st.stop()
 
 queries = get_cached_queries(db_path)

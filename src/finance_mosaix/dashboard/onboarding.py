@@ -1,27 +1,18 @@
-from pathlib import Path
-
 import duckdb
 import streamlit as st
 
 from finance_mosaix.core.db_schema import init_database
+from finance_mosaix.core.paths import resolve_db_path, sample_db_path
 from finance_mosaix.dashboard.create_sample_database import seed_sample_data
 from finance_mosaix.dashboard.settings import DEFAULT_SETTINGS, SAMPLE_DATABASE_PATH, save_settings
 
 POOL_OPTIONS = ["Cash", "Stocks", "Goods", "Interest"]
 
 
-def _resolve_database_path(root_dir: Path, path_value: str, demo_mode: bool = False) -> str:
+def _resolve_database_path(path_value: str, demo_mode: bool = False) -> str:
     if demo_mode:
-        selected_path = root_dir / SAMPLE_DATABASE_PATH
-    else:
-        if not path_value or not path_value.strip():
-            path_value = DEFAULT_SETTINGS["database"]["database_path"]
-
-        selected_path = Path(path_value)
-        if not selected_path.is_absolute():
-            selected_path = root_dir / selected_path
-
-    return str(selected_path.resolve())
+        return str(sample_db_path().resolve())
+    return str(resolve_db_path(path_value))
 
 
 def _ensure_database(path: str, demo_mode: bool) -> None:
@@ -35,7 +26,7 @@ def _ensure_database(path: str, demo_mode: bool) -> None:
             conn.close()
 
 
-def render_onboarding_view(settings: dict, root_dir: Path) -> None:
+def render_onboarding_view(settings: dict) -> None:
     database_settings = settings.setdefault("database", {})
     general_settings = settings.setdefault("general", {})
     current_demo_mode = database_settings.get("demo_mode", DEFAULT_SETTINGS["database"]["demo_mode"])
@@ -71,7 +62,7 @@ def render_onboarding_view(settings: dict, root_dir: Path) -> None:
                 help="Enter a local DuckDB file path. Relative paths are stored relative to the project root.",
             )
 
-        resolved_database_path = _resolve_database_path(root_dir, database_path, demo_mode=demo_mode)
+        resolved_database_path = _resolve_database_path(database_path, demo_mode=demo_mode)
         st.caption(f"Database will be created at: {resolved_database_path}")
 
         selected_pools = st.multiselect(

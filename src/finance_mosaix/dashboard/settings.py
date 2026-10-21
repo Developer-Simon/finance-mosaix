@@ -6,9 +6,9 @@ from pathlib import Path
 import streamlit as st
 
 from finance_mosaix.core.db_migrate import get_db_version, CURRENT_DB_VERSION
+from finance_mosaix.core.paths import settings_path
 from finance_mosaix.core.version import get_canonical_version
 
-SETTINGS_FILE_NAME = "settings.json"
 SAMPLE_DATABASE_PATH = "finance_sample.duckdb"
 
 PROJECT_VERSION = get_canonical_version()
@@ -69,9 +69,9 @@ FILTER_OPTIONS = [
 
 
 def get_settings_file_path() -> Path:
-    settings_path = Path(__file__).resolve().parent / SETTINGS_FILE_NAME
-    settings_path.parent.mkdir(parents=True, exist_ok=True)
-    return settings_path
+    path = settings_path()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    return path
 
 
 def _normalize_settings(raw: dict) -> dict:
