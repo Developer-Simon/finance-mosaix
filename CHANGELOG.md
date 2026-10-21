@@ -1,8 +1,22 @@
 # Changelog
 
+## [0.3.0](https://github.com/Developer-Simon/finance-mosaix/compare/v0.2.0...v0.3.0) (2026-10-21)
+
+
+### Features
+
+* **electron:** overhaul the desktop app with bundled runtime and new logo ([#13](https://github.com/Developer-Simon/finance-mosaix/issues/13)) ([ee196d5](https://github.com/Developer-Simon/finance-mosaix/commit/ee196d5227c62570926358c445a2eafbf87a0d07))
+
+
+### Bug Fixes
+
+* add x86_64-linux platform to Gemfile.lock to fix Jekyll CI build ([#9](https://github.com/Developer-Simon/finance-mosaix/issues/9)) ([e7ab547](https://github.com/Developer-Simon/finance-mosaix/commit/e7ab54723ad8f3cf991242fe3ac45ff85fb47d0d))
+
+## Changelog
+
 All notable changes to this project will be documented in this file.
 
-# [0.2.0](https://github.com/Developer-Simon/finance-mosaix/releases/tag/v0.2.0) - 2026-07-15
+## [0.2.0](https://github.com/Developer-Simon/finance-mosaix/releases/tag/v0.2.0) - 2026-07-15
 
 ### Features
 
@@ -12,7 +26,7 @@ All notable changes to this project will be documented in this file.
 
 - Fix timeline query to include latest values on dates without snapshots.
 
-# [0.1.0](https://github.com/Developer-Simon/finance-mosaix/releases/tag/v0.1.0) - 2026-07-14
+## [0.1.0](https://github.com/Developer-Simon/finance-mosaix/releases/tag/v0.1.0) - 2026-07-14
 
 ### Features
 
