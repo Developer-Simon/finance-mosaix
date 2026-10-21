@@ -23,4 +23,4 @@ def test_real_pyproject_contains_streamlit():
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
     output = module.render_requirements(text)
     assert "numpy>=1.25,<3" in output
-    assert "streamlit>=1.20,<2.0" in output
+    assert "streamlit>=1.46,<2.0" in output

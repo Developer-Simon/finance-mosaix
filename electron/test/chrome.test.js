@@ -19,6 +19,12 @@ test('barPage escapes text and contains drag region', () => {
   assert.ok(html.includes('prefers-color-scheme: dark'));
 });
 
+test('barPage shows the logo in the title bar and keeps the window title', () => {
+  const html = decodePage(barPage({ title: 'Finance Mosaix' }));
+  assert.match(html, /<header class="bar"[^>]*><svg [^>]*aria-label="finance mosaix"/);
+  assert.ok(html.includes('<title>Finance Mosaix</title>'));
+});
+
 test('titleBarOptions darwin uses traffic lights', () => {
   assert.deepEqual(titleBarOptions('darwin', false), {
     titleBarStyle: 'hidden',

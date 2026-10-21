@@ -1,5 +1,7 @@
 # Finance mosaix
 
+<img src="electron/assets/icon.png" alt="Finance mosaix icon" width="100" align="right">
+
 [![Python Tests](https://github.com/Developer-Simon/finance-mosaix/actions/workflows/pytest.yml/badge.svg)](https://github.com/Developer-Simon/finance-mosaix/actions/workflows/pytest.yml)
 [![Build package](https://github.com/Developer-Simon/finance-mosaix/actions/workflows/package.yml/badge.svg)](https://github.com/Developer-Simon/finance-mosaix/actions/workflows/package.yml)
 [![Publish docs](https://github.com/Developer-Simon/finance-mosaix/actions/workflows/pages.yml/badge.svg)](https://github.com/Developer-Simon/finance-mosaix/actions/workflows/pages.yml)

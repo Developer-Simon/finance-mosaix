@@ -67,13 +67,23 @@ CHART_POOL_REQUIREMENTS = {
     "Balance with Delta": {"Cash", "Interest"},
 }
 
+_ASSETS_DIR = Path(__file__).resolve().parent / "assets"
+
 st.set_page_config(
     page_title="Finance Dashboard",
-    page_icon="💰",
+    page_icon=str(_ASSETS_DIR / "logo-mark.svg"),
     layout="wide",
     menu_items={
         "About": "Finance Dashboard - Streamlit App for Personal Finance Database",
     }
+)
+
+# Top of the sidebar; the mark alone is shown while the sidebar is collapsed.
+_logo_theme = "dark" if st.context.theme.type == "dark" else "light"
+st.logo(
+    str(_ASSETS_DIR / f"logo-{_logo_theme}.svg"),
+    size="large",
+    icon_image=str(_ASSETS_DIR / "logo-mark.svg"),
 )
 
 settings = load_settings()
